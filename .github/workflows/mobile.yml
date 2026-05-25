@@ -133,6 +133,7 @@ jobs:
         
       - name: Build APK
         run: |
+         rm -rf ~/hxcpp_cache/haxe
          if [ "${GITHUB_REF##*/}" = "dev" ]; then
              haxelib run lime build android -clean -D DEVBRANCH ${{ github.event.inputs.android_flags }}
          else
