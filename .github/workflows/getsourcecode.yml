@@ -1,4 +1,4 @@
-name: Get Source Code From Tag/Release
+name: Fetch Release Source
 on:
   workflow_dispatch:
     inputs:
@@ -6,6 +6,7 @@ on:
         description: 'Repository'
         required: true
         type: string
+        default: 'OwnerName/RepoName'
       tag_name:
         description: 'Release Tag'
         required: true
@@ -50,7 +51,7 @@ jobs:
           
           rsync -av --exclude='.git' --exclude='.github' "$CURRENT_DIR/" ./
           rm -rf temp_extract source.tar.gz
-        
+          
       - name: commit
         run: |
           git config --global user.name "github-actions[bot]"
