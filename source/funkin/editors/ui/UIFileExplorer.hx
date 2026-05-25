@@ -48,6 +48,7 @@ class UIFileExplorer extends UISliceSprite {
 			var fileDialog = new FileDialog();
 			fileDialog.onSelect.add(loadFile);
 			fileDialog.browse(OPEN, this.fileType);
+			#end
 		}, bWidth - 16, bHeight - 16);
 		members.push(uploadButton);
 
