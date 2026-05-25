@@ -8,6 +8,8 @@ import funkin.backend.chart.ChartData;
 import funkin.backend.scripting.events.note.*;
 import funkin.backend.system.Conductor;
 import funkin.backend.system.Controls;
+import flixel.FlxSprite;
+import flixel.util.FlxDestroyUtil;
 
 /**
  * Group of strums, that contains the strums and notes.
@@ -75,6 +77,10 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	 */
 	public var animSuffix(default, set):String = "";
 	/**
+	 * The current animation suffix the strumline should use. Note that setting this will only take effect upon the alt. animation being reset.
+	 */
+	public var defaultAnimSuffix:String = Flags.DEFAULT_ALT_ANIM_SUFFIX;
+	/**
 	 * TODO: Write documentation about this being a variable that can help when making multi key
 	 */
 	public var strumAnimPrefix = ["left", "down", "up", "right"];
@@ -86,6 +92,11 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	 * Extra data that can be added to the strum line.
 	**/
 	public var extra:Map<String, Dynamic> = [];
+
+	/**
+	 * The background sprite for the strumline (Lane Background).
+	 */
+	public var laneBg:FlxSprite;
 
 	private function get_ghostTapping() {
 		if (this.ghostTapping != null) return this.ghostTapping;
@@ -161,6 +172,9 @@ class StrumLine extends FlxTypedGroup<Strum> {
 					curLen = Math.min(len, Conductor.stepCrochet);
 					notes.members[total-(il++)-1] = prev = new Note(this, note, true, curLen, note.sLen - len, prev);
 					len -= curLen;
+
+					if (prev != null && prev.sustainParent != null)
+						prev.sustainParent.tailCount++;
 				}
 			}
 		}
@@ -178,11 +192,21 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	}
 
 	public override function update(elapsed:Float) {
+		if (laneBg != null) {
+			laneBg.update(elapsed);
+			laneBg.x = startingPos.x; 
+		}
+
 		super.update(elapsed);
 		notes.update(elapsed);
 	}
 
 	public override function draw() {
+		if (laneBg != null && laneBg.alpha > 0) {
+			laneBg.cameras = cameras;
+			laneBg.draw();
+		}
+
 		super.draw();
 		notes.cameras = cameras;
 		notes.draw();
@@ -213,7 +237,7 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		if (__updateNote_event.cancelled) return;
 
 		if (__updateNote_event.__updateHitWindow) {
-			var hitWindow = PlayState.instance.hitWindow;
+			var hitWindow = Flags.USE_LEGACY_TIMING ? PlayState.instance.hitWindow : PlayState.instance.ratingManager.lastHitWindow;
 			daNote.canBeHit = (daNote.strumTime > __updateNote_songPos - (hitWindow * daNote.latePressWindow)
 				&& daNote.strumTime < __updateNote_songPos + (hitWindow * daNote.earlyPressWindow));
 
@@ -221,9 +245,10 @@ class StrumLine extends FlxTypedGroup<Strum> {
 				daNote.tooLate = true;
 		}
 
-		if (cpu && __updateNote_event.__autoCPUHit && !daNote.avoid && !daNote.wasGoodHit && daNote.strumTime < __updateNote_songPos) PlayState.instance.goodNoteHit(this, daNote);
+		if (cpu && __updateNote_event.__autoCPUHit && !daNote.avoid && !daNote.wasGoodHit && daNote.strumTime < __updateNote_songPos)
+			PlayState.instance.goodNoteHit(this, daNote);
 
-		if (daNote.wasGoodHit && daNote.isSustainNote && daNote.strumTime + daNote.sustainLength < __updateNote_songPos) {
+		if (daNote.wasGoodHit && daNote.isSustainNote && daNote.strumTime + daNote.sustainLength < __updateNote_songPos && !daNote.noSustainClip) {
 			deleteNote(daNote);
 			return;
 		}
@@ -236,30 +261,46 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 
 		if (__updateNote_event.strum == null) return;
-
 		if (__updateNote_event.__reposNote) __updateNote_event.strum.updateNotePosition(daNote);
-		if (daNote.isSustainNote)
+
+		if (daNote.isSustainNote) {
 			daNote.updateSustain(__updateNote_event.strum);
+		}
 	}
 
-	var __funcsToExec:Array<Note->Void> = [];
 	var __pressed:Array<Bool> = [];
 	var __justPressed:Array<Bool> = [];
 	var __justReleased:Array<Bool> = [];
 	var __notePerStrum:Array<Note> = [];
 
 	function __inputProcessPressed(note:Note) {
-		if (__pressed[note.strumID] && note.isSustainNote && note.strumTime < __updateNote_songPos && !note.wasGoodHit) {
+		if (__pressed[note.strumID] && note.isSustainNote && note.strumTime < __updateNote_songPos && !note.wasGoodHit && note.sustainParent.wasGoodHit) {
 			PlayState.instance.goodNoteHit(this, note);
-			note.updateSustainClip();
 		}
 	}
 	function __inputProcessJustPressed(note:Note) {
-		if (__justPressed[note.strumID] && !note.isSustainNote && !note.wasGoodHit && note.canBeHit) {
-			if (__notePerStrum[note.strumID] == null) 											__notePerStrum[note.strumID] = note;
-			else if (Math.abs(__notePerStrum[note.strumID].strumTime - note.strumTime) <= 2)  	deleteNote(note);
-			else if (note.strumTime < __notePerStrum[note.strumID].strumTime)					__notePerStrum[note.strumID] = note;
+		var strumID = note.strumID;
+		if (!__justPressed[strumID] || note.isSustainNote || note.wasGoodHit || !note.canBeHit) return;
+		
+		var cur = __notePerStrum[strumID];
+		if (cur == null) {
+			__notePerStrum[strumID] = note;
+			return;
 		}
+
+		var songPos = __updateNote_songPos;
+		var noteDist = Math.abs(note.strumTime - songPos);
+
+		var noteShouldAvoid = note.avoid;
+		var curShouldAvoid = cur.avoid;
+		if (!noteShouldAvoid && curShouldAvoid) {
+			__notePerStrum[strumID] = note;
+			return;
+		}
+
+		var curDist = Math.abs(cur.strumTime - songPos);
+		if (noteShouldAvoid == curShouldAvoid && noteDist < curDist)
+			__notePerStrum[strumID] = note;
 	}
 
 	/**
@@ -271,15 +312,21 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 		if (cpu) return;
 
-		__funcsToExec.clear();
-		__pressed.clear();
-		__justPressed.clear();
-		__justReleased.clear();
+		final membersLength = members.length;
 
-		for(s in members) {
-			__pressed.push(s.__getPressed(this));
-			__justPressed.push(s.__getJustPressed(this));
-			__justReleased.push(s.__getJustReleased(this));
+		if (__pressed.length != membersLength) {
+			__pressed.resize(membersLength);
+			__justPressed.resize(membersLength);
+			__justReleased.resize(membersLength);
+		}
+
+		if (__notePerStrum.length != membersLength)
+			__notePerStrum = cast new haxe.ds.Vector(membersLength); // [for(_ in 0...members.length) null];
+
+		for (i in 0...membersLength) {
+			__pressed[i] = members[i].__getPressed(this);
+			__justPressed[i] = members[i].__getJustPressed(this);
+			__justReleased[i] = members[i].__getJustReleased(this);
 		}
 
 		var event = EventManager.get(InputSystemEvent).recycle(__pressed, __justPressed, __justReleased, this, id);
@@ -290,34 +337,33 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		__justPressed = CoolUtil.getDefault(event.justPressed, []);
 		__justReleased = CoolUtil.getDefault(event.justReleased, []);
 
-		__notePerStrum = cast new haxe.ds.Vector(members.length);//[for(_ in 0...members.length) null];
-
-
 		if (__pressed.contains(true)) {
-			for(c in characters)
+			if (__justPressed.contains(true)) {
+				notes.forEachAlive(__inputProcessJustPressed);
+
+				for (k => pr in __justPressed)
+				{
+					var note = __notePerStrum[k];
+
+					if (note != null) {
+						PlayState.instance.goodNoteHit(this, note);
+						__notePerStrum[k] = null;
+					} else if (pr && !ghostTapping)
+						PlayState.instance.noteMiss(this, null, k, ID);
+				}
+			}
+
+			for (c in characters)
 				if (c.lastAnimContext != DANCE)
 					c.__lockAnimThisFrame = true;
 
-			__funcsToExec.push(__inputProcessPressed);
+			notes.forEachAlive(__inputProcessPressed);
 		}
-		if (__justPressed.contains(true))
-			__funcsToExec.push(__inputProcessJustPressed);
-
-		if (__funcsToExec.length > 0) {
-			notes.forEachAlive(function(note:Note) {
-				for(e in __funcsToExec) if (e != null) e(note);
-			});
-		}
-
-		if (!ghostTapping) for(k=>pr in __justPressed) if (pr && __notePerStrum[k] == null) {
-			// FUCK YOU
-			PlayState.instance.noteMiss(this, null, k, ID);
-		}
-		for(e in __notePerStrum) if (e != null) PlayState.instance.goodNoteHit(this, e);
 
 		forEach(function(str:Strum) {
-			str.updatePlayerInput(str.__getPressed(this), str.__getJustPressed(this), str.__getJustReleased(this));
+			str.updatePlayerInput(__pressed[str.ID], __justPressed[str.ID], __justReleased[str.ID]);
 		});
+
 		PlayState.instance.gameAndCharsCall("onPostInputUpdate");
 	}
 
@@ -335,6 +381,29 @@ class StrumLine extends FlxTypedGroup<Strum> {
 	**/
 	public inline function generateStrums(amount:Int = -1) {
 		if(amount == -1) amount = Flags.DEFAULT_STRUM_AMOUNT;
+		var spacing:Float = (data != null && data.strumSpacing != null) ? data.strumSpacing : 1;
+
+		// middle scroll
+		if (Options.middleScroll) {
+			if (opponentSide) {
+				startingPos.x = 10000;
+			} else {
+				startingPos.x = calculateStartingXPos(0.5, strumScale, spacing, amount);
+			}
+		}
+
+		// strumline background
+		var bgOpacity:Float = Options.strumlineBackground;
+		if (bgOpacity > 1) bgOpacity /= 100;
+
+		if (bgOpacity > 0 && (!opponentSide || !Options.middleScroll)) {
+			var totalWidth = (Note.swagWidth * strumScale * spacing * (amount - 1)) + (Note.swagWidth * strumScale);
+			
+			laneBg = new FlxSprite(startingPos.x, -FlxG.height).makeGraphic(Std.int(totalWidth), FlxG.height * 3, 0xFF000000);
+			laneBg.scrollFactor.set(0, 0);
+			laneBg.alpha = bgOpacity;
+		}
+
 		for (i in 0...amount)
 			add(createStrum(i));
 	}
@@ -344,6 +413,8 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		if(startingPos != null)
 			startingPos.put();
 		notes = FlxDestroyUtil.destroy(notes);
+		if (laneBg != null)
+			laneBg = FlxDestroyUtil.destroy(laneBg);
 	}
 
 	/**
@@ -411,6 +482,8 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		var event:SimpleNoteEvent = EventManager.get(SimpleNoteEvent).recycle(note);
 		onNoteDelete.dispatch(event);
 		if (!event.cancelled) {
+			if (note.isSustainNote && note.sustainParent != null && note.sustainParent.tailCount > 0)
+				note.sustainParent.tailCount--;
 			note.kill();
 			notes.remove(note, true);
 			note.destroy();
@@ -419,6 +492,9 @@ class StrumLine extends FlxTypedGroup<Strum> {
 
 	public static inline function calculateStartingXPos(hudXRatio:Float, scale:Float, spacing:Float, keyCount:Int) {
 		return (FlxG.width * hudXRatio) - ((Note.swagWidth * scale * ((keyCount/2)-0.5) * spacing) + Note.swagWidth * 0.5 * scale);
+	}
+	public static inline function calculateStartingXPosFromInitialWidth(hudXRatio:Float, scale:Float, spacing:Float, keyCount:Int) {
+		return (FlxG.initialWidth * hudXRatio) - ((Note.swagWidth * scale * ((keyCount/2)-0.5) * spacing) + Note.swagWidth * 0.5 * scale);
 	}
 
 	/**
@@ -438,11 +514,11 @@ class StrumLine extends FlxTypedGroup<Strum> {
 		return animSuffix = str;
 	}
 	private inline function set_altAnim(b:Bool):Bool {
-		animSuffix = b ? "-alt" : "";
+		animSuffix = b ? defaultAnimSuffix : "";
 		return b;
 	}
 	private inline function get_altAnim():Bool {
-		return animSuffix == "-alt";
+		return animSuffix == defaultAnimSuffix;
 	}
 	#end
 }
