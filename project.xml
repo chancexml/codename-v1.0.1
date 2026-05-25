@@ -50,7 +50,7 @@
 	<!-- _________________________________ Engine Settings _______________________________ -->
 
 	<!-- Comment this out to disable updates !-->
-	<define name="UPDATE_CHECKING" unless="web || hl || neko"/>
+	<define name="UPDATE_CHECKING" unless="web || hl || neko || mobile"/>
 
 	<!-- Comment this out to disable Discord RPC !-->
 	<section if="cpp">
@@ -103,7 +103,7 @@
 
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">
-		<define name="VIDEO_CUTSCENES" if="desktop || android" />
+		<define name="VIDEO_CUTSCENES" if="desktop || mobile" />
 	</section>
 
 	<!-- Comment this out to disable commit number on FPS -->
@@ -236,4 +236,32 @@
 
 	<!-- EXPERMENTAL FEATURES -->
 	<haxedef name="EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX" />
+
+	<!-- iOS Section -->
+	<section if="ios">
+		<haxelib name="IOSTools" />
+		
+	    <set name="IPHONEOS_DEPLOYMENT_TARGET" value="12.0" />
+		
+		<section if="nosign">
+            <set name="CODE_SIGNING_REQUIRED" value="NO" />
+            <set name="CODE_SIGNING_ALLOWED" value="NO" />
+            <set name="CODE_SIGN_IDENTITY" value="" />
+            <set name="DEVELOPMENT_TEAM" value="" />
+            <set name="PROVISIONING_PROFILE_SPECIFIER" value="" />
+        </section>
+	</section>
+		
+    <!-- Android Section -->
+	<section if="android">	
+		<haxelib name="extension-androidtools" />
+		
+	    <config:android minimum-sdk-version="21" />
+        <config:android target-sdk-version="34" />
+		
+	    <android permission="android.permission.MANAGE_EXTERNAL_STORAGE" />
+		<android permission="android.permission.READ_EXTERNAL_STORAGE" />
+        <android permission="android.permission.WRITE_EXTERNAL_STORAGE" />
+		<android permission="android.permission.VIBRATE" />
+	</section>
 </project>
