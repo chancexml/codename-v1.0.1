@@ -21,15 +21,21 @@ import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.text.TextFormat;
 import openfl.utils.AssetLibrary;
-
 #if ALLOW_MULTITHREADING
 import sys.thread.Thread;
+#end
+#if mobile
+import mobile.backend.utils.MobileTrace;
+import GlobalInputManager;
 #end
 #if android
 import extension.androidtools.content.Context;
 import extension.androidtools.os.Build;
+import extension.androidtools.Permissions;
+import extension.androidtools.os.Environment;
+import extension.androidtools.Settings;
+import mobile.backend.assets.Files;
 #end
-
 class Main extends Sprite
 {
 	public static var instance:Main;
