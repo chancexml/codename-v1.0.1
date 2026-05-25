@@ -7,46 +7,58 @@ import lime.text.Font;
 import openfl.text.Font as OpenFLFont;
 import openfl.utils.AssetLibrary;
 import openfl.utils.AssetManifest;
+import lime.system.System;
 
 using StringTools;
 #if MOD_SUPPORT
 import sys.FileSystem;
 #end
 
-
 class ModsFolder {
-	/**
-	 * INTERNAL - Only use when editing source mods!!
-	 */
 	@:dox(hide) public static var onModSwitch:FlxTypedSignal<String->Void> = new FlxTypedSignal<String->Void>();
 
-	/**
-	 * Current mod folder. Will affect `Paths`.
-	 */
 	public static var currentModFolder:String = null;
+
 	/**
-	 * Path to the `mods` folder.
+	 * Path to the `mods` folder. 
+	 * Now initialized dynamically based on platform.
 	 */
 	public static var modsPath:String = "./mods/";
-	/**
-	 * Path to the `addons` folder.
-	 */
 	public static var addonsPath:String = "./addons/";
 
-	/**
-	 * If accessing a file as assets/data/global/LIB_mymod.hx should redirect to mymod:assets/data/global.hx
-	 */
 	public static var useLibFile:Bool = true;
-
-	/**
-	 * Whenever its the first time mods has been reloaded.
-	 */
 	private static var __firstTime:Bool = true;
 
 	/**
-	 * Initializes `mods` folder.
+	 * Initializes paths and the `mods` folder.
 	 */
 	public static function init() {
+		// platform Specific Paths
+		#if ios
+		var root:String = Path.addTrailingSlash(System.documentsDirectory);
+		modsPath = root + "mods/";
+		addonsPath = root + "addons/";
+
+		#elseif android
+		var root:String = haxe.io.Path.addTrailingSlash(haxe.io.Path.normalize("/storage/emulated/0/.CodenameEngine-v1.0.1/"));
+        modsPath = root + "mods/";
+        addonsPath = root + "addons/";
+		
+		#else
+		modsPath = "./mods/";
+		addonsPath = "./addons/";
+		#end
+
+		// Ensure directories exist
+		#if MOD_SUPPORT
+		try {
+			if (!FileSystem.exists(modsPath)) FileSystem.createDirectory(modsPath);
+			if (!FileSystem.exists(addonsPath)) FileSystem.createDirectory(addonsPath);
+		} catch(e:Dynamic) {
+			Logs.error("Failed to create mods/addons folders: " + e);
+		}
+		#end
+
 		if(!getModsList().contains(Options.lastLoadedMod)) {
 			if(Options.lastLoadedMod != null)
 				Logs.warn("Mod \"" + Options.lastLoadedMod + "\" not found in mods list, switching to base game!");
@@ -54,16 +66,11 @@ class ModsFolder {
 		}
 	}
 
-	/**
-	 * Switches mod - unloads all the other mods, then load this one.
-	 * @param libName
-	 */
 	public static function switchMod(mod:String) {
 		Options.lastLoadedMod = currentModFolder = mod;
 		reloadMods();
-		if(mod == null) {
-			mod = "(default)";
-		}
+		if(mod == null) mod = "(default)";
+		
 		Logs.traceColored([
 			Logs.logText('Switched to mod: '),
 			Logs.logText(mod, GREEN)
@@ -76,18 +83,13 @@ class ModsFolder {
 		__firstTime = false;
 	}
 
-	/**
-	 * Loads a mod library from the specified path. Supports folders and zips.
-	 * @param modName Name of the mod
-	 * @param force Whenever the mod should be reloaded if it has already been loaded
-	 */
 	public static function loadModLib(path:String, force:Bool = false, ?modName:String) {
 		#if MOD_SUPPORT
-		if (FileSystem.exists('$path.zip'))
-			return loadLibraryFromZip('$path'.toLowerCase(), '$path.zip', force, modName);
-		else
-			return loadLibraryFromFolder('$path'.toLowerCase(), '$path', force, modName);
-
+		for (ext in Flags.ALLOWED_ZIP_EXTENSIONS) {
+			if (!FileSystem.exists('$path.$ext')) continue;
+			return loadLibraryFromZip('$path'.toLowerCase(), '$path.$ext', force, modName);
+		}
+		return loadLibraryFromFolder('$path'.toLowerCase(), '$path', force, modName);
 		#else
 		return null;
 		#end
@@ -96,31 +98,23 @@ class ModsFolder {
 	public static function getModsList():Array<String> {
 		var mods:Array<String> = [];
 		#if MOD_SUPPORT
-		if (!FileSystem.exists(modsPath)) {
-			// Mods directory does not exist yet, create it
-			FileSystem.createDirectory(modsPath);
-		}
+		if (!FileSystem.exists(modsPath)) return mods;
 		
 		final modsList:Array<String> = FileSystem.readDirectory(modsPath);
-
-		if (modsList == null || modsList.length <= 0)
-			return mods;
+		if (modsList == null || modsList.length <= 0) return mods;
 
 		for (modFolder in modsList) {
-			if (FileSystem.isDirectory(modsPath + modFolder)) {
+			var fullPath = modsPath + modFolder;
+			if (FileSystem.isDirectory(fullPath)) {
 				mods.push(modFolder);
-			} else {
-				var ext = Path.extension(modFolder).toLowerCase();
-				switch(ext) {
-					case 'zip':
-						// is a zip mod!!
-						mods.push(Path.withoutExtension(modFolder));
-				}
+			} else if (Flags.ALLOWED_ZIP_EXTENSIONS.contains(Path.extension(modFolder))) {
+				mods.push(Path.withoutExtension(modFolder));
 			}
 		}
 		#end
 		return mods;
 	}
+
 	public static function getLoadedModsLibs(skipTranslated:Bool = false):Array<IModsAssetLibrary> {
 		var libs = [];
 		for (i in Paths.assetsTree.libraries) {
@@ -128,10 +122,11 @@ class ModsFolder {
 			#if TRANSLATIONS_SUPPORT
 			if(skipTranslated && (l is TranslatedAssetLibrary)) continue;
 			#end
-			if (l is ScriptedAssetLibrary || l is IModsAssetLibrary) libs.push(cast(l, IModsAssetLibrary));
+			if (l is IModsAssetLibrary) libs.push(cast(l, IModsAssetLibrary));
 		}
 		return libs;
 	}
+
 	public static function getLoadedMods(skipTranslated:Bool = false):Array<String>
 		return [for (modLib in getLoadedModsLibs(skipTranslated)) modLib.modName];
 
@@ -141,7 +136,6 @@ class ModsFolder {
 		assets.version = 2;
 		assets.libraryArgs = [];
 		assets.assets = [];
-
 		return AssetLibrary.fromManifest(assets);
 	}
 
