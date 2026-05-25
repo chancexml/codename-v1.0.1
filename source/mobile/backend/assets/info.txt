@@ -1,0 +1,7 @@
+Android:
+mods = storage/emulated/0/.CodenameEngine-v1.0.1
+assets = obb or data depending on android os version
+
+Ios:
+mods = Documents/
+assets = i forgot
