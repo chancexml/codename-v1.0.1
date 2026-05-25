@@ -9,6 +9,7 @@ import mobile.controls.VirtualPad;
 import funkin.backend.utils.NativeAPI;
 import flixel.input.keyboard.FlxKey;
 import flixel.ui.FlxButton;
+import mobile.backend.utils.MobileTrace;
 #end
 #if android
 import extension.androidtools.Tools;
