@@ -9,11 +9,18 @@ import funkin.backend.scripting.events.menu.freeplay.*;
 import funkin.backend.system.Conductor;
 import funkin.game.HealthIcon;
 import funkin.savedata.FunkinSave;
+#if mobile
+import mobile.controls.VirtualPad;
+import mobile.controls.FlxButton;
+#end
 
 using StringTools;
 
 class FreeplayState extends MusicBeatState
 {
+	#if mobile
+    public var virtualPad:VirtualPad;
+    #end
 	/**
 	 * Array containing all of the songs' metadata.
 	 */
@@ -187,6 +194,12 @@ class FreeplayState extends MusicBeatState
 		changeCoopMode(0, true);
 
 		interpColor = new FlxInterpolateColor(bg.color);
+
+		#if mobile
+		virtualPad = new VirtualPad(FULL, A_B_C);
+        add(virtualPad);
+		virtualPad.rebind('C', 'TAB');
+		#end
 	}
 
 	#if PRELOAD_ALL
