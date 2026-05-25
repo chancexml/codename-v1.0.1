@@ -15,9 +15,17 @@ import funkin.editors.charter.Charter;
 import funkin.menus.StoryMenuState;
 import funkin.options.OptionsMenu;
 import funkin.options.keybinds.KeybindsOptions;
+#if mobile
+import mobile.controls.VirtualPad;
+import mobile.controls.FlxButton;
+#end
 
 class PauseSubState extends MusicBeatSubstate
 {
+	#if mobile
+    public var virtualPad:VirtualPad;
+    #end
+		
 	public static var script:String = Flags.DEFAULT_PAUSE_SCRIPT;
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
@@ -123,6 +131,11 @@ class PauseSubState extends MusicBeatSubstate
 		pauseScript.call("postCreate");
 
 		game.updateDiscordPresence();
+
+		#if mobile
+		virtualPad = new VirtualPad(UP_DOWN, A_B);
+        add(virtualPad);
+		#end
 	}
 
 	override function update(elapsed:Float)
