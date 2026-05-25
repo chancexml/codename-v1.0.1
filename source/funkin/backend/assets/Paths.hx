@@ -8,7 +8,7 @@ import funkin.backend.scripting.Script;
 import haxe.io.Path;
 import lime.utils.AssetLibrary;
 import openfl.utils.Assets as OpenFlAssets;
-import animate.FlxAnimateFrames;
+//import animate.FlxAnimateFrames;
 
 #if android
 import extension.androidtools.content.Context;
