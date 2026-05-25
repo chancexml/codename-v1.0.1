@@ -34,12 +34,26 @@ import funkin.backend.week.WeekData;
 import funkin.savedata.FunkinSave;
 import haxe.io.Path;
 
+#if mobile
+import mobile.controls.PauseButton;
+import mobile.controls.HitBox;
+import flixel.input.keyboard.FlxKey;
+import funkin.options.Options;
+#end
+
 using StringTools;
 
 @:access(flixel.text.FlxText.FlxTextFormatRange)
 @:access(funkin.game.StrumLine)
 class PlayState extends MusicBeatState
 {
+	/**
+     * Mobile Hitbox.
+     */
+	#if mobile
+	public var hitbox:HitBox;
+	#end
+    
 	/**
 	 * Current PlayState instance.
 	 */
@@ -886,6 +900,17 @@ class PlayState extends MusicBeatState
 			if (s != null)
 				FlxG.sound.load(Paths.sound(s));
 
+		#if mobile
+		// hitbox.
+		hitbox = new HitBox(Options.hitboxStyle, Options.hintStyle);
+        add(hitbox);
+        hitbox.setupCamera();
+        // pausebutton.
+		var androidPause = new mobile.controls.Pause();
+        add(androidPause);
+        androidPause.setPauseButton('true');
+		#end
+
 		if (chartingMode) {
 			WindowUtils.prefix = Charter.undos.unsaved ? Flags.UNDO_PREFIX : "";
 			WindowUtils.suffix = TU.translate("playtesting.chartPlaytesting");
@@ -1442,6 +1467,38 @@ class PlayState extends MusicBeatState
 		#end
 
 		super.update(elapsed);
+
+		#if mobile
+		if (hitbox != null) {
+            if (hitbox.UP.justPressed) {
+                FlxG.keys.handleAction(FlxKey.W, true);
+            }
+            if (hitbox.UP.justReleased) {
+                FlxG.keys.handleAction(FlxKey.W, false);
+            }
+
+            if (hitbox.DOWN.justPressed) {
+                FlxG.keys.handleAction(FlxKey.S, true);
+            }
+            if (hitbox.DOWN.justReleased) {
+                FlxG.keys.handleAction(FlxKey.S, false);
+            }
+
+            if (hitbox.LEFT.justPressed) {
+                FlxG.keys.handleAction(FlxKey.A, true);
+            }
+            if (hitbox.LEFT.justReleased) {
+                FlxG.keys.handleAction(FlxKey.A, false);
+            }
+
+            if (hitbox.RIGHT.justPressed) {
+               FlxG.keys.handleAction(FlxKey.D, true);
+            }
+            if (hitbox.RIGHT.justReleased) {
+                FlxG.keys.handleAction(FlxKey.D, false);
+           }
+	    }
+		#end
 
 		scripts.call("postUpdate", [elapsed]);
 	}
