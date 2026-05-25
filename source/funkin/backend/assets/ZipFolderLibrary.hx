@@ -1,14 +1,11 @@
 package funkin.backend.assets;
 
-import funkin.backend.system.Flags;
 import haxe.io.Path;
 import lime.graphics.Image;
 import lime.media.AudioBuffer;
 import lime.text.Font;
 import lime.utils.Bytes;
 import openfl.utils.AssetLibrary;
-import sys.io.File;
-import lime.system.System;
 
 #if MOD_SUPPORT
 import funkin.backend.utils.SysZip.SysZipEntry;
@@ -18,90 +15,37 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 	public var basePath:String;
 	public var modName:String;
 	public var libName:String;
+	public var useImageCache:Bool = false;
 	public var prefix = 'assets/';
-	
+
 	public var zip:SysZip;
 	public var assets:Map<String, SysZipEntry> = [];
 	public var lowerCaseAssets:Map<String, SysZipEntry> = [];
 	public var nameMap:Map<String, String> = [];
 
-	public var PRELOAD_VIDEOS:Bool = true;
-
-	public function new(basePath:String, libName:String, ?modName:String, ?preloadVideos:Bool = true) {
+	public function new(basePath:String, libName:String, ?modName:String) {
 		this.libName = libName;
 
-		var root:String = "";
-		#if android
-		root = haxe.io.Path.normalize("/storage/emulated/0/.CodenameEngine-v1.0.1/");
-		#elseif ios
-		root = System.documentsDirectory;
-		if (root != null && !root.endsWith("/")) root += "/";
-		#end
-
-		if (root != "" && !Path.isAbsolute(basePath)) {
-			basePath = Path.join([root, basePath]);
-		}
-
 		this.basePath = basePath;
+		
 		this.modName = (modName == null) ? libName : modName;
 
 		zip = SysZip.openFromFile(basePath);
+		zip.read();
 		for(entry in zip.entries) {
-			if (entry.fileName.length < 0 || entry.fileName.endsWith("/")) continue;
-
-			var name:String = entry.fileName.toLowerCase();
-			lowerCaseAssets[name] = assets[name] = assets[entry.fileName] = entry;
-			nameMap.set(name, entry.fileName);
+			lowerCaseAssets[entry.fileName.toLowerCase()] = assets[entry.fileName.toLowerCase()] = assets[entry.fileName] = entry;
+			nameMap.set(entry.fileName.toLowerCase(), entry.fileName);
 		}
 
 		super();
-
-		isCompressed = true;
-		PRELOAD_VIDEOS = (!PRELOAD_VIDEOS) ? exists("assets/data/PRECACHE_VIDEOS", "TEXT") : PRELOAD_VIDEOS;
-	}
-
-	public function precacheVideos() {
-		_videoExtensions = [Flags.VIDEO_EXT];
-		
-		videoCacheRemap = [];
-		for (entry in zip.entries) {
-			var name = entry.fileName.toLowerCase();
-			if (_videoExtensions.contains(Path.extension(name))) getPath(prefix+name);
-		}
-
-		var count:Int = 0;
-        for (_ in videoCacheRemap.keys()) count++;
-		if (count <= 0) return;
-		trace('Precached $count video${(count == 1) ? "" : "s"}');
-	}
-
-	public var _videoExtensions:Array<String> = [Flags.VIDEO_EXT];
-	public var videoCacheRemap:Map<String, String> = [];
-	
-	public function getVideoRemap(originalPath:String):String {
-		if (!_videoExtensions.contains(Path.extension(_parsedAsset))) return originalPath;
-		if (videoCacheRemap.exists(originalPath)) return videoCacheRemap.get(originalPath);
-
-		var tempDir:String = "./.temp/";
-		#if mobile
-		tempDir = Path.join([System.applicationStorageDirectory, "temp"]);
-		#end
-
-		if (!sys.FileSystem.exists(tempDir)) sys.FileSystem.createDirectory(tempDir);
-
-		var fileName = '${_parsedAsset.length}-zipvideo-${_parsedAsset.split("/").pop()}';
-		var newPath = Path.join([tempDir, fileName]);
-
-		File.saveBytes(newPath, unzip(assets[_parsedAsset]));
-		videoCacheRemap.set(originalPath, newPath);
-		return newPath;
 	}
 
 	function toString():String {
-		return '(ZipFolderLibrary: $libName/$modName | ${zip.entries.length} entries | Detected Video Extensions: ${_videoExtensions.join(", ")})';
+		return '(ZipFolderLibrary: $libName/$modName)';
 	}
 
 	public var _parsedAsset:String;
+
 	public override function getAudioBuffer(id:String):AudioBuffer {
 		__parseAsset(id);
 		return AudioBuffer.fromBytes(unzip(assets[_parsedAsset]));
@@ -124,12 +68,15 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return getAssetPath();
 	}
 
-	public inline function unzip(f:SysZipEntry) return (f == null) ? null : zip.unzipEntry(f);
+
+
+	public inline function unzip(f:SysZipEntry)
+		return f == null ? null : zip.unzipEntry(f);
 
 	public function __parseAsset(asset:String):Bool {
 		if (!asset.startsWith(prefix)) return false;
 		_parsedAsset = asset.substr(prefix.length);
-		if (ModsFolder.useLibFile) {
+		if(ModsFolder.useLibFile) {
 			var file = new haxe.io.Path(_parsedAsset);
 			if(file.file.startsWith("LIB_")) {
 				var library = file.file.substr(4);
@@ -140,7 +87,8 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		}
 
 		_parsedAsset = _parsedAsset.toLowerCase();
-		if (nameMap.exists(_parsedAsset)) _parsedAsset = nameMap.get(_parsedAsset);
+		if(nameMap.exists(_parsedAsset))
+			_parsedAsset = nameMap.get(_parsedAsset);
 		return true;
 	}
 
@@ -155,15 +103,18 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return assets[_parsedAsset] != null;
 	}
 
-	private inline function getAssetPath() {
-		return getVideoRemap('$basePath/$_parsedAsset');
+	private function getAssetPath() {
+		trace('[ZIP]$basePath/$_parsedAsset');
+		return '[ZIP]$basePath/$_parsedAsset';
 	}
 
+	// TODO: rewrite this to 1 function, like ModsFolderLibrary
 	public function getFiles(folder:String):Array<String> {
 		if (!folder.endsWith("/")) folder += "/";
 		if (!__parseAsset(folder)) return [];
 
 		var content:Array<String> = [];
+
 		var checkPath = _parsedAsset.toLowerCase();
 
 		@:privateAccess
@@ -184,6 +135,7 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		if (!__parseAsset(folder)) return [];
 
 		var content:Array<String> = [];
+
 		var checkPath = _parsedAsset.toLowerCase();
 
 		@:privateAccess
@@ -202,6 +154,14 @@ class ZipFolderLibrary extends AssetLibrary implements IModsAssetLibrary {
 		return content;
 	}
 
-	public override function list(type:String):Array<String> { return [for(k=>e in nameMap) '$prefix$e']; }
+	// Backwards compat
+
+	@:noCompletion public var zipPath(get, set):String;
+	@:noCompletion private inline function get_zipPath():String {
+		return basePath;
+	}
+	@:noCompletion private inline function set_zipPath(value:String):String {
+		return basePath = value;
+	}
 }
 #end
