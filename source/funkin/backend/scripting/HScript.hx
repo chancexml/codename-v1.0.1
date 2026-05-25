@@ -9,7 +9,6 @@ import mobile.controls.VirtualPad;
 import funkin.backend.utils.NativeAPI;
 import flixel.input.keyboard.FlxKey;
 import flixel.ui.FlxButton;
-import mobile.backend.utils.MobileTrace;
 #end
 #if android
 import extension.androidtools.Tools;
@@ -48,13 +47,6 @@ class HScript extends Script {
 		interp.importFailedCallback = importFailedCallback;
 		interp.staticVariables = Script.staticVariables;
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
-
-		interp.variables.set("trace", Reflect.makeVarArgs((args) -> {
-			var v:String = Std.string(args.shift());
-			for (a in args) v += ", " + Std.string(a);
-			this.trace(v);
-		}));
-
 		#if mobile
 		interp.variables.set("VirtualPad", mobile.controls.VirtualPad);
 
@@ -68,6 +60,7 @@ class HScript extends Script {
     
             return vpad;
         });
+		#end
 
 		interp.variables.set("addCustomButton", function(x:Float, y:Float, assetPath:String, keyStr:String, size:Dynamic = 1.0) {
             var vpad = interp.variables.get("virtualPad");
@@ -118,7 +111,13 @@ class HScript extends Script {
 
             return btn;
         });
-		#end
+		
+		
+		interp.variables.set("trace", Reflect.makeVarArgs((args) -> {
+			var v:String = Std.string(args.shift());
+			for (a in args) v += ", "+ Std.string(a);
+			this.trace(v);
+		}));
 
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.call("onScriptCreated", [this, "hscript"]);
@@ -139,7 +138,7 @@ class HScript extends Script {
 		return this;
 	}
 
-	private function importFailedCallback(cl:Array<String>):Bool {
+	private function importFailedCallback(cl:Array<String>, ?asName:String):Bool {
 		if(_importFailedCallback(cl, "source/") || _importFailedCallback(cl, "")) {
 			return true;
 		}
