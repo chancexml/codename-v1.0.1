@@ -5,6 +5,10 @@ import flixel.util.typeLimit.OneOfThree;
 import funkin.editors.ui.UIState;
 import funkin.options.categories.*;
 import funkin.options.type.*;
+#if mobile
+import mobile.controls.VirtualPad;
+import mobile.controls.FlxButton;
+#end
 
 typedef OptionCategory = {
 	var name:String;
@@ -15,6 +19,10 @@ typedef OptionCategory = {
 }
 
 class OptionsMenu extends TreeMenu {
+	#if mobile
+    public var virtualPad:VirtualPad;
+    #end
+		
 	public static var mainOptions:Array<OptionCategory> = [
 		{  // name and desc are actually the translations ids!  - Nex
 			name: 'optionsTree.controls-name',
@@ -65,6 +73,11 @@ class OptionsMenu extends TreeMenu {
 		bg.antialiasing = true;
 		bg.scrollFactor.set();
 		updateBG();
+
+		#if mobile
+		virtualPad = new VirtualPad(FULL, A_B);
+        add(virtualPad);
+		#end
 
 		for (i in mainOptions) if (i.name == "optionsTree.language-name" && Flags.DISABLE_LANGUAGES) mainOptions.remove(i);
 
