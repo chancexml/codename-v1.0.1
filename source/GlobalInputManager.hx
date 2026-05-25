@@ -43,7 +43,6 @@ class GlobalInputManager extends FlxBasic {
         }
         if (!isAnyFingerDown) {
             VirtualPad.touchingPad = false;
-            BackButton.isPressingBack = false;
         }
 
         if (VirtualPad.touchingPad) {
