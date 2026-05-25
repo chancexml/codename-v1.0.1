@@ -44,6 +44,7 @@ class HScript extends Script {
 		__importedPaths = [path];
 
 		interp.errorHandler = _errorHandler;
+		interp.warnHandler = _warnHandler;
 		interp.importFailedCallback = importFailedCallback;
 		interp.staticVariables = Script.staticVariables;
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
