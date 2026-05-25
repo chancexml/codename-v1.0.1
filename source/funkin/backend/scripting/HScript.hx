@@ -4,6 +4,16 @@ import hscript.*;
 import hscript.Expr.Error;
 import hscript.Parser;
 import openfl.Assets;
+#if mobile
+import mobile.controls.VirtualPad;
+import funkin.backend.utils.NativeAPI;
+import flixel.input.keyboard.FlxKey;
+import flixel.ui.FlxButton;
+import mobile.backend.utils.MobileTrace;
+#end
+#if android
+import extension.androidtools.Tools;
+#end
 
 class HScript extends Script {
 	public var interp:Interp;
@@ -43,6 +53,71 @@ class HScript extends Script {
 			for (a in args) v += ", " + Std.string(a);
 			this.trace(v);
 		}));
+
+		#if mobile
+		interp.variables.set("VirtualPad", mobile.controls.VirtualPad);
+
+        interp.variables.set("addVirtualPad", function(dpadModeStr:String, actionModeStr:String) {
+            var dpadMode = Type.createEnum(mobile.controls.VirtualPad.FlxDPadMode, dpadModeStr);
+            var actionMode = Type.createEnum(mobile.controls.VirtualPad.FlxActionMode, actionModeStr);
+    
+            var vpad = new mobile.controls.VirtualPad(dpadMode, actionMode);
+            flixel.FlxG.state.add(vpad); 
+            interp.variables.set("virtualPad", vpad);
+    
+            return vpad;
+        });
+
+		interp.variables.set("addCustomButton", function(x:Float, y:Float, assetPath:String, keyStr:String, size:Dynamic = 1.0) {
+            var vpad = interp.variables.get("virtualPad");
+            if (vpad == null) return null;
+
+            var fullPath = Paths.image(assetPath);
+            if (!openfl.utils.Assets.exists(fullPath)) {
+                trace("ERROR: Custom button image not found at: " + assetPath);
+                return null;
+            }
+ 
+            var btn = new FlxButton(x, y);
+            btn.loadGraphic(fullPath);
+
+            var scaleAmt:Float = Std.parseFloat(Std.string(size));
+            if (Math.isNaN(scaleAmt)) scaleAmt = 1.0;
+    
+            btn.scale.set(scaleAmt, scaleAmt);
+            btn.updateHitbox();
+
+            btn.solid = false;
+            btn.immovable = true;
+            btn.scrollFactor.set();
+  
+            var customCam = interp.variables.get("virtualpadCamera");
+            if (customCam != null) {
+                btn.cameras = [customCam];
+            } else {
+		        btn.cameras = vpad.cameras; 
+            }
+
+            var key = FlxKey.fromString(keyStr.toUpperCase());
+            vpad.add(btn); 
+
+            var updateHook:Void->Void = null;
+            updateHook = function() {
+                try {
+                    if (btn == null || !btn.exists || vpad == null) {
+                        flixel.FlxG.signals.postUpdate.remove(updateHook);
+                        return;
+                    }
+                    @:privateAccess vpad.updateButtonKey(btn, key, "custom_" + assetPath, flixel.FlxG.elapsed);
+                } catch(e:Dynamic) {
+                    flixel.FlxG.signals.postUpdate.remove(updateHook);
+                }
+            };
+            flixel.FlxG.signals.postUpdate.add(updateHook);
+
+            return btn;
+        });
+		#end
 
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.call("onScriptCreated", [this, "hscript"]);
@@ -115,6 +190,32 @@ class HScript extends Script {
 			Logs.logText(fn, GREEN),
 			Logs.logText(err, RED)
 		], ERROR);
+
+		#if mobile
+	    NativeAPI.showMessageBox("HScript Error!", fn + "\n" + Std.string(err), "Got It!");
+	    #end
+	}
+
+	private function _warnHandler(error:Error) {
+		var fileName = error.origin;
+		var oldfn = '$fileName:${error.line}: ';
+		if(remappedNames.exists(fileName))
+			fileName = remappedNames.get(fileName);
+		var fn = '$fileName:${error.line}: ';
+		var err = error.toString();
+		while(err.startsWith(oldfn) || err.startsWith(fn)) {
+			if (err.startsWith(oldfn)) err = err.substr(oldfn.length);
+			if (err.startsWith(fn)) err = err.substr(fn.length);
+		}
+
+		Logs.traceColored([
+			Logs.logText(fn, GREEN),
+			Logs.logText(err, YELLOW)
+		], WARNING);
+
+		#if android
+    	NativeAPI.showMessageBox("HScript Warning!", fn + "\n" + Std.string(err), "Got It!");
+    	#end
 	}
 
 	public override function setParent(parent:Dynamic) {
@@ -184,6 +285,10 @@ class HScript extends Script {
 			Logs.logText('${fileName}:${posInfo.lineNumber}: ', GREEN),
 			Logs.logText(Std.isOfType(v, String) ? v : Std.string(v))
 		], TRACE);
+
+		#if mobile
+		MobileTrace.log(msg);
+		#end
 	}
 
 	public override function setPublicMap(map:Map<String, Dynamic>) {
