@@ -6,7 +6,7 @@ import flixel.util.FlxDestroyUtil;
 import flixel.FlxBasic;
 import flixel.input.touch.FlxTouch;
 import mobile.controls.VirtualPad;
-import mobile.controls.ui.BackButton;
+//import mobile.controls.ui.BackButton;
 
 #if mobile
 class GlobalInputManager extends FlxBasic {
@@ -46,7 +46,7 @@ class GlobalInputManager extends FlxBasic {
             BackButton.isPressingBack = false;
         }
 
-        if (VirtualPad.touchingPad || BackButton.isPressingBack) {
+        if (VirtualPad.touchingPad) {
             isPressing = false;
             isDragging = false;
             trackedTouchID = -1;
