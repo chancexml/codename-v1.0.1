@@ -12,7 +12,8 @@ import flixel.system.ui.FlxSoundTray;
 import funkin.backend.assets.AssetsLibraryList;
 import funkin.backend.assets.ModsFolder;
 import funkin.backend.assets.AssetSource;
-import funkin.backend.system.framerate.SystemInfo;
+import funkin.backend.system.framerate.Framerate;
+//import funkin.backend.system.framerate.SystemInfo;
 import funkin.backend.system.modules.*;
 import funkin.editors.SaveWarning;
 import openfl.Assets;
@@ -25,8 +26,8 @@ import openfl.utils.AssetLibrary;
 import sys.thread.Thread;
 #end
 #if android
-import android.content.Context;
-import android.os.Build;
+import extension.androidtools.content.Context;
+import extension.androidtools.os.Build;
 #end
 
 class Main extends Sprite
@@ -39,9 +40,7 @@ class Main extends Sprite
 	public static var verbose:Bool = false;
 
 	public static var scaleMode:FunkinRatioScaleMode;
-	#if !mobile
 	public static var framerateSprite:funkin.backend.system.framerate.Framerate;
-	#end
 
 	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels).
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels).
@@ -78,10 +77,65 @@ class Main extends Sprite
 
 		addChild(game = new FunkinGame(gameWidth, gameHeight, MainState, Options.framerate, Options.framerate, skipSplash, startFullscreen));
 
-		#if (!mobile && !web)
+		#if android
+	    checkPermissions();
+
+    	if (Permissions.hasManageAllFiles()) {
+		    finalizeSetup();
+	    }
+        #elseif ios
+     	    finalizeSetup();
+        #end
+
+		#if mobile
+		MobileTrace.enabled = true;
+		#end
+			
+		#if !web
 		addChild(framerateSprite = new funkin.backend.system.framerate.Framerate());
 		SystemInfo.init();
 		#end
+
+		#if mobile
+		FlxG.plugins.add(new GlobalInputManager());
+        #end
+	}
+
+	#if android
+	private function onResult(_):Void {
+		if (extension.androidtools.Permissions.hasManageAllFiles()) {
+			finalizeSetup();
+			openfl.Lib.current.stage.removeEventListener(openfl.events.Event.ACTIVATE, onResult);
+		}
+	}
+    
+	private function checkPermissions():Void {
+		if (!extension.androidtools.Permissions.hasManageAllFiles()) {
+            haxe.Timer.delay(function() {
+               openfl.Lib.current.stage.addEventListener(openfl.events.Event.ACTIVATE, onResult);
+
+            extension.androidtools.Permissions.requestManageAllFiles(); 
+			}, 2000);
+		} else {
+			finalizeSetup();
+		}
+	}
+	#end	
+
+	private function finalizeSetup():Void {
+		var base = mobile.backend.assets.Files.getAssetsDir();
+		
+		if (!base.endsWith("/")) base += "/";
+
+		var firstRun = !sys.FileSystem.exists(base + "assets/");
+
+		if (firstRun)
+		{
+			trace("First run detected. Starting file initialization...");
+			mobile.backend.assets.Files.init();
+		} else {
+			trace("Assets already initialized at: " + base);
+		}
 	}
 
 	@:dox(hide)
