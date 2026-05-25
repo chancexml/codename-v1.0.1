@@ -111,11 +111,8 @@ class Main extends Sprite
     
 	private function checkPermissions():Void {
 		if (!extension.androidtools.Permissions.hasManageAllFiles()) {
-            haxe.Timer.delay(function() {
                openfl.Lib.current.stage.addEventListener(openfl.events.Event.ACTIVATE, onResult);
-
             extension.androidtools.Permissions.requestManageAllFiles(); 
-			}, 2000);
 		} else {
 			finalizeSetup();
 		}
