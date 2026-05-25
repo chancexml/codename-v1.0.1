@@ -287,7 +287,7 @@ class HScript extends Script {
 		], TRACE);
 
 		#if mobile
-		MobileTrace.log(msg);
+		MobileTrace.log(Std.string(v));
 		#end
 	}
 
