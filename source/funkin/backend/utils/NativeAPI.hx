@@ -7,6 +7,11 @@ import funkin.backend.utils.native.*;
 import flixel.util.typeLimit.OneOfTwo;
 import flixel.util.typeLimit.OneOfThree;
 import flixel.util.FlxColor;
+#if android
+import extension.androidtools.Tools;
+#elseif ios
+import iostools.IOSTools; 
+#end
 
 /**
  * Class for functions that talk to a lower level than haxe, such as message boxes, and more.
@@ -171,12 +176,18 @@ class NativeAPI {
 	/**
 	 * Shows a message box
 	 */
-	public static function showMessageBox(caption:String, message:String, icon:MessageBoxIcon = MSG_WARNING) {
-		#if windows
-		Windows.showMessageBox(caption, message, icon);
-		#else
-		lime.app.Application.current.window.alert(message, caption);
-		#end
+	public static function showMessageBox(caption:String, message:String, buttonName:String = "OK", icon:MessageBoxIcon = MSG_WARNING)
+    {
+        #if android
+        extension.androidtools.Tools.showAlertDialog(caption, message, {name: buttonName, func: null});
+		#elseif ios
+		IOSTools.showAlert(caption, message, buttonName);
+        #elseif (windows && !macro)
+        var iconInt:Int = cast(icon, Int);
+        untyped __cpp__('MessageBoxA(GetActiveWindow(), {0}.c_str(), {1}.c_str(), {2})', message, caption, iconInt);
+        #else
+        lime.app.Application.current.window.alert(message, caption);
+        #end
 	}
 
 	/**
