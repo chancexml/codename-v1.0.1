@@ -135,6 +135,12 @@ jobs:
            -clean ${{ github.event.inputs.android_flags }}
          find . -name "*.apk"
 
+      - name: Inspect openfl
+        if: failure()
+        run: |
+         grep -n "hello" .haxelib/openfl/git/src/openfl/display3D/Context3D.hx
+         grep -n "__clear" .haxelib/openfl/git/src/openfl/display3D/Context3D.hx
+
       - name: debug
         run: |
          #find . -name "AndroidManifest.xml"
