@@ -73,6 +73,9 @@ jobs:
          restore-keys: |
           android-cache-${{ runner.os }}-
 
+      - name: Delete OpenFL
+        run: rm -rf ~/.haxelib/openfl
+
       - name: Setup environment
         run: |
          mkdir -p /home/runner/hxcpp_cache
