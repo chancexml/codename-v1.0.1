@@ -342,11 +342,24 @@ class MobileControlsSubstate extends MusicBeatSubstate
 		var save = FlxG.save.data.customPadPos;
 		if (save == null) return;
 
-		if (save.upX != null && customPad.buttonUp != null) { customPad.buttonUp.x = save.upX; customPad.buttonUp.y = save.upY; }
-		if (save.downX != null && customPad.buttonDown != null) { customPad.buttonDown.x = save.downX; customPad.buttonDown.y = save.downY; }
-		if (save.leftX != null && customPad.buttonLeft != null) { customPad.buttonLeft.x = save.leftX; customPad.buttonLeft.y = save.leftY; }
-		if (save.rightX != null && customPad.buttonRight != null) { customPad.buttonRight.x = save.rightX; customPad.buttonRight.y = save.rightY; }
+		if (Reflect.hasField(save, 'upX') && customPad.buttonUp != null) { 
+			customPad.buttonUp.x = save.upX; 
+			customPad.buttonUp.y = save.upY; 
+		}
+		if (Reflect.hasField(save, 'downX') && customPad.buttonDown != null) { 
+			customPad.buttonDown.x = save.downX; 
+			customPad.buttonDown.y = save.downY; 
+		}
+		if (Reflect.hasField(save, 'leftX') && customPad.buttonLeft != null) { 
+			customPad.buttonLeft.x = save.leftX; 
+			customPad.buttonLeft.y = save.leftY; 
+		}
+		if (Reflect.hasField(save, 'rightX') && customPad.buttonRight != null) { 
+			customPad.buttonRight.x = save.rightX; 
+			customPad.buttonRight.y = save.rightY; 
+		}
 	}
+	
 
 	function saveAndClose()
 	{
