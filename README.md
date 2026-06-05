@@ -1,4 +1,11 @@
-# Friday Night Funkin' - Codename Engine (WIP)
+# Friday Night Funkin' - Codename Engine Mobile (WIP)
+
+---
+
+# Build Status
+[![Mobile Build](https://github.com/ChanceXML/codename-v1.0.1/actions/workflows/mobile.yml/badge.svg)](https://github.com/ChanceXML/codename-v1.0.1/actions/workflows/mobile.yml)
+
+---
 
 ## PLEASE NOTE - THIS IS STILL IN A BETA STATE
 ### Mods created with beta versions of Codename may not be compatible with the release version
