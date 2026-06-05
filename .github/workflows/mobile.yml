@@ -127,21 +127,22 @@ jobs:
           echo "JAVA_TOOL_OPTIONS=-Xmx5g" >> $GITHUB_ENV
           echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.jks
 
-      - name: Patch Lime
+      - name: Patch All OpenFL Files
         run: |
-         FILE=".haxelib/openfl/git/src/openfl/net/FileReference.hx"
+          TARGET_DIR=".haxelib/openfl/git/src/openfl"
 
-         if [ -f "$FILE" ]; then
-           echo "Patching FileDialogFilter..."
+          if [ -d "$TARGET_DIR" ]; then
+            echo "Patching all files in $TARGET_DIR..."
 
-           sed -i 's/lime\.ui\.FileDialogFilter/lime.ui.FileDialog/g' "$FILE"
+            # Find all files and run sed on them
+            find "$TARGET_DIR" -type f -exec sed -i 's/lime\.ui\.FileDialogFilter/lime.ui.FileDialog/g' {} +
 
-           echo "Done. Verifying:"
-           grep "FileDialog" -n "$FILE" || true
-         else
-           echo "File not found: $FILE"
-           exit 1
-         fi
+            echo "Done. Verifying random changes:"
+            grep -rn "lime.ui.FileDialog" "$TARGET_DIR" | head -n 10 || true
+          else
+            echo "Directory not found: $TARGET_DIR"
+            exit 1
+          fi
          
       - name: Build APK
         run: |
@@ -153,12 +154,6 @@ jobs:
            --certificate-alias-password="${{ secrets.KEY_PASSWORD }}" \
            -clean ${{ github.event.inputs.android_flags }}
          find . -name "*.apk"
-
-      - name: Inspect openfl
-        if: failure()
-        run: |
-         grep -n "hello" .haxelib/openfl/git/src/openfl/display3D/Context3D.hx
-         grep -n "__clear" .haxelib/openfl/git/src/openfl/display3D/Context3D.hx
 
       - name: debug
         run: |
