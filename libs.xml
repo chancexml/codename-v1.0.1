@@ -8,7 +8,7 @@
 		<git name="IOSTools" url="https://github.com/ChanceXML/IOSTools" />
 
 		<!-- OpenFL & Lime (Required for Flixel) -->
-		<git name="openfl" url="https://github.com/CodenameCrew/cne-openfl" ref="cne"/>
+		<git name="openfl" url="https://github.com/CodenameCrew/cne-openfl" ref="782627b89de76ff6ca85c267f8e36e2e09e1dc92"/>
 		<lib name="lime" version="8.2.1" />
 		<!-- <git name="lime" url="https://github.com/CodenameCrew/cne-lime" />  disabled for now until fixed -->
 
