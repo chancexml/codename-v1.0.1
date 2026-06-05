@@ -93,21 +93,6 @@ jobs:
             "$JAVA_HOME" \
             | haxelib run lime setup android  
 
-          TARGET_DIR=".haxelib/openfl/git/src/openfl"
-
-          if [ -d "$TARGET_DIR" ]; then
-            echo "Patching all files in $TARGET_DIR..."
-
-            # Find all files and run sed on them
-            find "$TARGET_DIR" -type f -exec sed -i 's/lime\.ui\.FileDialogFilter/lime.ui.FileDialog/g' {} +
-
-            echo "Done. Verifying random changes:"
-            grep -rn "lime.ui.FileDialog" "$TARGET_DIR" | head -n 10 || true
-          else
-            echo "Directory not found: $TARGET_DIR"
-            exit 1
-          fi
-          
           haxelib list
 
       - name: Install neccessary android tools
