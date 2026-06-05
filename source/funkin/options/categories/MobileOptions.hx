@@ -28,7 +28,7 @@ class MobileOptions extends TreeMenuScreen {
 			0,
             1,
             0.05,
-			'virtualPadOpacity',
+			'virtualPadOpacity'
 		));
 
         add(new ArrayOption(
@@ -53,7 +53,7 @@ class MobileOptions extends TreeMenuScreen {
 			0,
             1,
             0.05,
-			'hintOpacity',
+			'hintOpacity'
 		));
 
         add(new NumOption(
@@ -62,7 +62,7 @@ class MobileOptions extends TreeMenuScreen {
 			0,
             1,
             0.05,
-			'hitboxOpacity',
+			'hitboxOpacity'
 		));
 	}
 }
