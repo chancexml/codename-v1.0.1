@@ -8,7 +8,7 @@
 		<git name="IOSTools" url="https://github.com/ChanceXML/IOSTools" />
 
 		<!-- OpenFL & Lime (Required for Flixel) -->
-		<git name="openfl" url="https://github.com/CodenameCrew/cne-openfl" ref="2dc98531ee685c465ad98cfebef6da3002648840" />
+		<git name="openfl" url="https://github.com/CodenameCrew/cne-openfl" ref="d97b17208de04d6a124f8f939457a4346ed204b3" />
 		<lib name="lime" version="8.2.1" />
 		<!-- <git name="lime" url="https://github.com/CodenameCrew/cne-lime" />  disabled for now until fixed -->
 
@@ -19,12 +19,14 @@
 		<!-- Other Libraries -->
 		<git name="hscript-improved" url="https://github.com/CodenameCrew/hscript-improved" ref="codename-dev" />
 		<git name="flxanimate" url="https://github.com/CodenameCrew/cne-flxanimate" />
+		<!--
 		<git name="hxdiscord_rpc" url="https://github.com/CodenameCrew/cne-hxdiscord_rpc" skipDeps="true" />
+		-->
 		<git name="funkin-modchart" url="https://github.com/TheoDevelops/FunkinModchart" ref="f30676579d8de7ccac7d12e13b664e8b2c42c6bf" skipDeps="true" />
 		<lib name="hxvlc" version="1.9.3" skipDeps="true" />
 
 		<!-- Documentation and other features -->
-		<git name="away3d" url="https://github.com/CodenameCrew/away3d" />
+		<git name="away3d" url="https://github.com/CodenameCrew/away3d" ref="b79aa898c28273a3ec76236c7922a64bf42715e4" />
 		<!-- <lib name="dox" /> -->
 		<lib name="markdown" />
 		<lib name="hxcpp-debug-server" />
@@ -35,7 +37,7 @@
 		<lib global="true" name="hxp" /> <lib name="hxp" />
 		<lib global="true" name="format" /> <lib name="format" />
 
-		<git name="hxcpp" url="https://github.com/CodenameCrew/cne-hxcpp" />
+		<git name="hxcpp" url="https://github.com/CodenameCrew/cne-hxcpp" ref="be7ef02b785cf9cac8377b0ddbeef5026aa65221" />
 	</if>
 
 	<!-- Hxcpp Building -->
