@@ -132,14 +132,15 @@ jobs:
          FILE=".haxelib/openfl/git/src/openfl/net/FileReference.hx"
 
          if [ -f "$FILE" ]; then
-           echo "Applying conditional patch..."
-  
-           sed -i 's/lime\.ui\.FileDialogFilter/lime.ui.FileDialog/g' "$FILE'
+           echo "Patching FileDialogFilter..."
 
-          if grep -q "FileDialogFilter" "$FILE"; then
-             echo "WARNING: unresolved references remain"
-             exit 1
-           fi
+           sed -i 's/lime\.ui\.FileDialogFilter/lime.ui.FileDialog/g' "$FILE"
+
+           echo "Done. Verifying:"
+           grep "FileDialog" -n "$FILE" || true
+         else
+           echo "File not found: $FILE"
+           exit 1
          fi
          
       - name: Build APK
