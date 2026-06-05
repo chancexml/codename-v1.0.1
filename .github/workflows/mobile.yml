@@ -126,6 +126,21 @@ jobs:
           echo "android.splits.abi.enable=false" >> ~/.gradle/gradle.properties
           echo "JAVA_TOOL_OPTIONS=-Xmx5g" >> $GITHUB_ENV
           echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.jks
+
+      - name: Patch Lime
+        run: |
+         FILE=".haxelib/openfl/git/src/openfl/net/FileReference.hx"
+
+         if [ -f "$FILE" ]; then
+           echo "Applying conditional patch..."
+  
+           sed -i 's/lime\.ui\.FileDialogFilter/lime.ui.FileDialog/g' "$FILE'
+
+          if grep -q "FileDialogFilter" "$FILE"; then
+             echo "WARNING: unresolved references remain"
+             exit 1
+           fi
+         fi
          
       - name: Build APK
         run: |
