@@ -21,7 +21,7 @@ class BlendModeEffect
 	{
 		this.shader = shader;
 		
-		if (this.shader?.uBlendColor != null)
+		if (this.shader != null && this.shader.uBlendColor != null)
 		{
 			this.shader.uBlendColor.value = [0.0, 0.0, 0.0, 0.0];
 		}
@@ -31,12 +31,13 @@ class BlendModeEffect
 
 	function set_color(value:FlxColor):FlxColor
 	{
-		if (this.color == value && shader?.uBlendColor?.value != null) 
-			return this.color = value;
+		if (this.color == value && shader != null && shader.uBlendColor != null && shader.uBlendColor.value != null) {
+        return this.color = value;
+    }
 
 		this.color = value;
 
-		if (shader?.uBlendColor != null)
+		if (shader != null && shader.uBlendColor != null)
 		{
 			shader.uBlendColor.value = [
 				color.redFloat,
