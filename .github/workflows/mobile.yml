@@ -173,6 +173,7 @@ jobs:
           path: export/release/android/bin/app/build/outputs/apk/release/*.apk
 
   buildiOS:
+    needs: buildAndroid
     if: ${{ github.event_name == 'push' || github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'all' }}
     runs-on: macos-latest
 
