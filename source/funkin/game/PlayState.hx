@@ -48,10 +48,11 @@ using StringTools;
 class PlayState extends MusicBeatState
 {
 	/**
-     * Mobile Hitbox.
+     * Mobile Controls
      */
 	#if mobile
 	public var hitbox:HitBox;
+	public var virtualPad:VirtualPad;
 	#end
     
 	/**
@@ -901,10 +902,8 @@ class PlayState extends MusicBeatState
 				FlxG.sound.load(Paths.sound(s));
 
 		#if mobile
-		// hitbox.
-		hitbox = new HitBox(Options.hitboxStyle, Options.hintStyle);
-        add(hitbox);
-        hitbox.setupCamera();
+		// mobile controls
+		addMobileControls();
         // pausebutton.
 		var androidPause = new mobile.controls.Pause();
         add(androidPause);
@@ -1066,6 +1065,36 @@ class PlayState extends MusicBeatState
 
 		gameAndCharsEvent("onPostCountdown", event);
 	}
+
+	#if mobile
+	function addMobileControls()
+	{
+		var controlMode:String = Options.mobilecontrols;
+		if (controlMode == null) controlMode = 'Hitbox';
+
+		switch (controlMode)
+		{
+			case 'Hitbox':
+				hitbox = new HitBox(Options.hitboxStyle, Options.hintStyle);
+                add(hitbox);
+                hitbox.setupCamera();
+
+			case 'Dpad':
+				virtualPad = new VirtualPad(FULL, NONE); 
+				add(virtualPad);
+
+			case 'Double Dpad':
+				virtualPad = new VirtualPad(DOUBLE, NONE);
+				add(virtualPad);
+
+			case 'Custom':
+				virtualPad = new VirtualPad(CUSTOM, NONE);
+				add(virtualPad);
+
+			case 'None':
+		}
+	}
+	#end
 
 	@:dox(hide) function startSong():Void
 	{
