@@ -1,5 +1,7 @@
 package funkin.options.type;
 
+import flixel.FlxG;
+
 class ArrayOption extends TextOption {
 	public var changedCallback:String->Void;
 
@@ -58,6 +60,26 @@ class ArrayOption extends TextOption {
 
 		if (optionName != null) Reflect.setField(parent, optionName, options[currentSelection]);
 		if (changedCallback != null) changedCallback(options[currentSelection]);
+	}
+	
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		if (FlxG.mouse != null && FlxG.mouse.justPressed && !locked) {
+			
+			if (FlxG.mouse.overlaps(__selectionText)) {
+				
+				var leftZone = __selectionText.x + (__selectionText.width * 0.35);
+				var rightZone = __selectionText.x + (__selectionText.width * 0.65);
+
+				if (FlxG.mouse.x <= leftZone && currentSelection > 0) {
+					changeSelection(-1);
+				} 
+				else if (FlxG.mouse.x >= rightZone && currentSelection < options.length - 1) {
+					changeSelection(1);
+				}
+			}
+		}
 	}
 
 	override function select() {}
