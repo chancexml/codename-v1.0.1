@@ -55,12 +55,7 @@ class StoryMenuState extends MusicBeatState {
 	public var weekSprites:FlxTypedGroup<MenuItem>;
 	public var characterSprites:FlxTypedGroup<FunkinSprite>;
 
-	//public var charFrames:Map<String, FlxFramesCollection> = [];
-
-	#if mobile
-    public var hoveringLeft = FlxG.mouse.overlaps(leftArrow);
-    public var hoveringRight = FlxG.mouse.overlaps(rightArrow);
-    #end
+	//public var charFrames:Map<String, FlxFramesCollection> = []
 
 	public override function create() {
 		super.create();
@@ -162,6 +157,9 @@ class StoryMenuState extends MusicBeatState {
 
 		if (canSelect) {
 			#if mobile
+			var hoveringLeft = FlxG.mouse.overlaps(leftArrow);
+			var hoveringRight = FlxG.mouse.overlaps(rightArrow);
+			
 			if (FlxG.mouse.overlaps(leftArrow))
             {
                 leftArrow.animation.play("press");
