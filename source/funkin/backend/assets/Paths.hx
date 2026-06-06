@@ -269,18 +269,19 @@ class Paths
 		return graph.imageFrame;
 	}
 
-	public static function getFolderDirectories(key:String, addPath:Bool = false, source:AssetSource = BOTH):Array<String> {
+	public static function getFolderDirectories(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH):Array<String> {
 		if (!key.endsWith("/")) key += "/";
-		var content = assetsTree.getFolders('assets/$key', source);
+		var content = assetsTree.getFolders('$ASSETS_DIR$key', source);
 		if (addPath) {
 			for(k=>e in content)
 				content[k] = '$key$e';
 		}
 		return content;
 	}
-	static public function getFolderContent(key:String, addPath:Bool = false, source:AssetSource = BOTH, noExtension:Bool = false):Array<String> {
+
+	static public function getFolderContent(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH, noExtension:Bool = false):Array<String> {
 		if (!key.endsWith("/")) key += "/";
-		var content = assetsTree.getFiles('assets/$key', source);
+		var content = assetsTree.getFiles('$ASSETS_DIR$key', source);
 		for (k => e in content) {
 			if (noExtension) e = Path.withoutExtension(e);
 			content[k] = addPath ? '$key$e' : e;
