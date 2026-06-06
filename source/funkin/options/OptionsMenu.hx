@@ -75,7 +75,7 @@ class OptionsMenu extends TreeMenu {
 		updateBG();
 
 		#if mobile
-		virtualPad = new VirtualPad(FULL, A_B);
+		virtualPad = new VirtualPad(NONE, B);
         add(virtualPad);
 		#end
 
