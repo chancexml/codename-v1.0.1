@@ -143,7 +143,7 @@ class StoryMenuState extends MusicBeatState {
 		CoolUtil.playMenuSong();
 
 		#if mobile
-		virtualPad = new VirtualPad(UP_DOWN, B);
+		virtualPad = new VirtualPad(NONE, B);
         add(virtualPad);
 		#end
 	}
@@ -160,16 +160,14 @@ class StoryMenuState extends MusicBeatState {
 			var hoveringLeft = FlxG.mouse.overlaps(leftArrow);
 			var hoveringRight = FlxG.mouse.overlaps(rightArrow);
 			
-			if (FlxG.mouse.overlaps(leftArrow))
-            {
+			if (FlxG.mouse.overlaps(leftArrow)) {
                 leftArrow.animation.play("press");
 
                 if (FlxG.mouse.justPressed)
                     changeDifficulty(-1);
             }
 
-            if (FlxG.mouse.overlaps(rightArrow))
-            {
+            if (FlxG.mouse.overlaps(rightArrow)) {
                 rightArrow.animation.play("press");
 
                 if (FlxG.mouse.justPressed)
@@ -177,20 +175,16 @@ class StoryMenuState extends MusicBeatState {
             }
 
 			for (week in weekSprites.members) {
-                if (week != null && FlxG.mouse.overlaps(week))
+                if (week != null && FlxG.mouse.overlaps(week) && FlxG.mouse.justPressed)
             {
                 if (curWeek != week.ID)
-                {
                     changeWeek(week.ID - curWeek);
-                }
-                else if (FlxG.mouse.justPressed)
-                {
+                else
                     selectWeek();
-                    }
+                break;
                 }
             }
-			#end
-			
+	
 			if (leftArrow != null && leftArrow.exists) 
 				leftArrow.animation.play(controls.LEFT #if mobile || hoveringLeft #end ? 'press' : 'idle');
 			if (rightArrow != null && rightArrow.exists) 
