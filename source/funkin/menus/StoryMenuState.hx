@@ -143,7 +143,7 @@ class StoryMenuState extends MusicBeatState {
 		CoolUtil.playMenuSong();
 
 		#if mobile
-		virtualPad = new VirtualPad(NONE, B);
+		virtualPad = new VirtualPad(UP_DOWN, B);
         add(virtualPad);
 		#end
 	}
@@ -175,11 +175,7 @@ class StoryMenuState extends MusicBeatState {
             }
 
 			for (week in weekSprites.members) {
-                if (week != null && FlxG.mouse.overlaps(week) && FlxG.mouse.justPressed)
-            {
-                if (curWeek != week.ID)
-                    changeWeek(week.ID - curWeek);
-                else
+                if (week != null && week.ID == curWeek && FlxG.mouse.overlaps(week) && FlxG.mouse.justPressed) {
                     selectWeek();
                 break;
                 }
