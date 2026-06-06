@@ -25,6 +25,9 @@
 		<str id="optionsTree.debug-name">Desarrollador</str>
 		<str id="optionsTree.debug-desc">Opciones para el Modo Desarrollador.</str>
 
+		<str id="optionsTree.mobile-name">Opciones Movil</str>
+        <str id="optionsTree.mobile-desc">Opciones Relacionadas con el movil.</str>
+
 		<!-- cant have debug here -->
 	</group>
 
@@ -60,6 +63,31 @@
 			<str id="reloadState">Refrescar Pantalla</str>
 		</group>
 	</group>
+
+	<group name="MobileOptions" prefix="MobileOptions">
+		<str id="mobilecontrols-name">Controles Movil</str>
+		<str id="mobilecontrols-desc">Cambia los botones del juego.</str>
+		
+   	    <str id="pauseButton-name">Boton De Pausa</str>
+	    <str id="pauseButton-desc">Activa el boton de pause. si esta desactivado entonces sera invisible.</str>
+
+		<str id="virtualPadOpacity-name">Opacidad Tactil</str>
+		<str id="virtualPadOpacity-desc">esto se explica solo.</str>
+	
+        <str id="hintStyle-name">Hint</str>
+        <str id="hintStyle-desc">Cambia el estilo del hint.</str>
+        
+        <str id="hitboxStyle-name">Hitbox</str>
+        <str id="hitboxStyle-desc">Cambia el estilo de la hitbox.</str>
+	
+        <str id="hintOpacity-name">Hint Transparencia</str>
+        <str id="hintOpacity-desc">esto se explica solo.</str>
+    
+        <str id="hitboxOpacity-name">Hitbox Transparencia</str>
+        <str id="hitboxOpacity-desc">esto se explica solo.</str>
+
+	   <!-- <str id=" -->
+    </group>
 
 	<group name="AppearanceOptions" prefix="AppearanceOptions.">
 		<str id="framerate-name">FPS</str>
