@@ -184,6 +184,7 @@ class StoryMenuState extends MusicBeatState {
                 break;
                 }
             }
+			#end
 	
 			if (leftArrow != null && leftArrow.exists) 
 				leftArrow.animation.play(controls.LEFT #if mobile || hoveringLeft #end ? 'press' : 'idle');
