@@ -103,7 +103,9 @@ class MainMenuState extends MusicBeatState
 		devModeWarning.alpha = 0;
 
 		#if mobile
-		virtualPad = new VirtualPad(FULL, A_B_X_Y);
+		virtualPad = new VirtualPad(NONE, A_B);
+		virtualPad.rebind('A', 'TAB');
+		virtualPad.rebind('B', 'SEVEN');
         add(virtualPad);
 		#end
 	}
@@ -119,6 +121,21 @@ class MainMenuState extends MusicBeatState
 
 		if (!selectedSomethin)
 		{
+			for (spr in menuItems.members)
+            {
+                if (spr != null && FlxG.mouse.overlaps(spr))
+            {
+                if (curSelected != spr.ID)
+                changeItem(spr.ID - curSelected);
+
+                if (FlxG.mouse.justPressed)
+                {
+                    selectItem();
+                    break;
+                    }
+                }
+            }
+			
 			if (canAccessDebugMenus) {
 				if (controls.DEV_ACCESS) {
 					persistentUpdate = false;
