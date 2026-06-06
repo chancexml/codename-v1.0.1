@@ -215,7 +215,8 @@ jobs:
 
       - name: Build iOS
         run: |
-          #arch -x86_64 
+          rm -rf export/ios/build
+          rm -rf $PWD/build
           haxelib run lime build ios ${{ github.event.inputs.ios_flags }}
           find . -name "*.ipa"
            
