@@ -16,8 +16,8 @@ on:
         default:
       release_type:
         description: "Choose release type"
-        required: true
-        default: "Pre-Release"
+        required: false
+        default: "Release"
         type: choice
         options:
           - "Release"
@@ -28,7 +28,7 @@ on:
          default: "No"
          type: choice
          options:
-          - "Yes"
+          - "Yeah"
           - "No"
 jobs:
   buildAndroid:
@@ -141,6 +141,7 @@ jobs:
 
   release:
    name: Release APK
+   if: ${{ github.event.inputs.release == 'Yeah' }}
    needs: [buildAndroid]
    permissions: write-all
    runs-on: ubuntu-latest
