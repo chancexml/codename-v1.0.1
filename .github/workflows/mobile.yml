@@ -187,6 +187,9 @@ jobs:
           haxe -cp commandline -D analyzer-optimize --run Main setup --silent
 
           echo "n" | haxelib run lime setup ios
+
+          haxelib remove lime
+          haxelib install lime 8.2.1
           
       - name: Clean iOS
         run: haxelib run lime clean ios
