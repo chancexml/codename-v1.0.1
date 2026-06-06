@@ -2,20 +2,19 @@ package funkin.options.categories;
 
 import flixel.FlxG;
 import funkin.options.Options;
-import funkin.options.type.Checkbox;
-import funkin.options.type.SliderOption;
-/**
-public static var hitboxOpacity:Float = 0.15;
-public static var hitboxHints:Float = 0.25;
-public static var pauseButton:Bool = true;
-public static var hitboxStyle:String = "Simple";
-public static var hintStyle:String = "Simple";
-**/
-class MobileOptions extends TreeMenuScreen {
+import funkin.options.type.*;
 
-    public function new() {
-        super('optionsTree.mobile-name', 'optionsTree.mobile-desc', 'MobileOptions');
+class MobileOptions extends TreeMenuScreen
+{
+	public function new()
+	{
+		super('optionsTree.mobile-name', 'optionsTree.mobile-desc', 'MobileOptions');
 
+		add(new MobileControlsOption(
+	        getNameID('mobilecontrols'),
+        	getDescID('mobilecontrols')
+        ));
+		
         add(new Checkbox(
             getNameID('pauseButton'),
             getDescID('pauseButton'),
