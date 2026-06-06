@@ -144,6 +144,7 @@ jobs:
           echo "android.splits.abi.enable=false" >> ~/.gradle/gradle.properties
           echo "JAVA_TOOL_OPTIONS=-Xmx5g" >> $GITHUB_ENV
           echo "${{ secrets.KEYSTORE }}" | base64 -d > keystore.jks
+          find ~/hxcpp_cache -name "*.pch" -delete
          haxelib run lime clean android
          haxelib run lime build android -final -release \
            --certificate-path="keystore.jks" \
