@@ -57,6 +57,11 @@ class StoryMenuState extends MusicBeatState {
 
 	//public var charFrames:Map<String, FlxFramesCollection> = [];
 
+	#if mobile
+    public var hoveringLeft = FlxG.mouse.overlaps(leftArrow);
+    public var hoveringRight = FlxG.mouse.overlaps(rightArrow);
+    #end
+
 	public override function create() {
 		super.create();
 		loadXMLs();
@@ -143,7 +148,7 @@ class StoryMenuState extends MusicBeatState {
 		CoolUtil.playMenuSong();
 
 		#if mobile
-		virtualPad = new VirtualPad(FULL, A_B);
+		virtualPad = new VirtualPad(UP_DOWN, B);
         add(virtualPad);
 		#end
 	}
@@ -156,8 +161,42 @@ class StoryMenuState extends MusicBeatState {
 		scoreText.text = TU.translate("story.score", [Math.round(lerpScore)]);
 
 		if (canSelect) {
-			if (leftArrow != null && leftArrow.exists) leftArrow.animation.play(controls.LEFT ? 'press' : 'idle');
-			if (rightArrow != null && rightArrow.exists) rightArrow.animation.play(controls.RIGHT ? 'press' : 'idle');
+			#if mobile
+			if (FlxG.mouse.overlaps(leftArrow))
+            {
+                leftArrow.animation.play("press");
+
+                if (FlxG.mouse.justPressed)
+                    changeDifficulty(-1);
+            }
+
+            if (FlxG.mouse.overlaps(rightArrow))
+            {
+                rightArrow.animation.play("press");
+
+                if (FlxG.mouse.justPressed)
+                    changeDifficulty(1);
+            }
+
+			for (week in weekSprites.members) {
+                if (week != null && FlxG.mouse.overlaps(week))
+            {
+                if (curWeek != week.ID)
+                {
+                    changeWeek(week.ID - curWeek);
+                }
+                else if (FlxG.mouse.justPressed)
+                {
+                    selectWeek();
+                    }
+                }
+            }
+			#end
+			
+			if (leftArrow != null && leftArrow.exists) 
+				leftArrow.animation.play(controls.LEFT #if mobile || hoveringLeft #end ? 'press' : 'idle');
+			if (rightArrow != null && rightArrow.exists) 
+				rightArrow.animation.play(controls.RIGHT #if mobile || hoveringRight #end ? 'press' : 'idle');
 
 			if (controls.BACK) {
 				goBack();
