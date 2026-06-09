@@ -109,6 +109,7 @@ class MainMenuState extends MusicBeatState
 		
 		em = new ExtraButtons("E_M"); 
 		em.cameras = [extraCam];
+		em.updateHitbox();
         add(em);
 		#end
 	}
