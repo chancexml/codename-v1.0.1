@@ -28,26 +28,35 @@ class ExtraButtons extends FlxSpriteGroup {
         btnE = { justPressed: false, justReleased: false, sprite: null };
         
         initButtons(buttonMode);
+
+        extraCam = new FlxCamera();
+        extraCam.bgColor = 0x00000000;
+        FlxG.cameras.add(extraCam, false);
     }
 
     public function initButtons(buttonMode:String) {
         switch (buttonMode) {
             case "E":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
+                btnE.sprite.cameras = [extraCam];
                 add(btnE.sprite);
 
             case "E_M":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
+                btnE.sprite.cameras = [extraCam];
                 add(btnE.sprite);
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
+                btnM.sprite.cameras = [extraCam];
                 add(btnM.sprite);
 
             case "M":
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
+                btnM.sprite.cameras = [extraCam];
                 add(btnM.sprite);
 
             case "Back":
                 btnBack.sprite = createSparrowButton(1000, 475, "menus/backButton", "back");
+                btnBack.sprite.cameras = [extraCam];
                 add(btnBack.sprite);
         }
     }
