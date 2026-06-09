@@ -33,17 +33,17 @@ class ExtraButtons extends FlxSpriteGroup {
     public function initButtons(buttonMode:String) {
         switch (buttonMode) {
             case "E":
-                btnE.sprite = createImageButton(50, 475, "menus/EButton");
+                btnE.sprite = createButton(50, 475, "menus/EButton");
                 add(btnE.sprite);
 
             case "E_M":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
                 add(btnE.sprite);
-                btnM.sprite = createImageButton(1000, 475, "menus/MButton");
+                btnM.sprite = createButton(1000, 475, "menus/MButton");
                 add(btnM.sprite);
 
             case "M":
-                btnM.sprite = createImageButton(1000, 475, "menus/MButton");
+                btnM.sprite = createButton(1000, 475, "menus/MButton");
                 add(btnM.sprite);
 
             case "Back":
