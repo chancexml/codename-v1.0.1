@@ -10,8 +10,7 @@ import funkin.menus.credits.CreditsMain;
 import funkin.options.OptionsMenu;
 import lime.app.Application;
 #if mobile
-import mobile.controls.VirtualPad;
-import mobile.controls.FlxButton;
+import mobile.controls.ExtraButtons;
 #end
 
 using StringTools;
@@ -19,7 +18,7 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	#if mobile
-    public var virtualPad:VirtualPad;
+    public var em:ExtraButtons;
     #end
 		
 	var curSelected:Int = 0;
@@ -103,10 +102,8 @@ class MainMenuState extends MusicBeatState
 		devModeWarning.alpha = 0;
 
 		#if mobile
-		virtualPad = new VirtualPad(NONE, A_B);
-		virtualPad.rebind('A', 'TAB');
-		virtualPad.rebind('B', 'SEVEN');
-        add(virtualPad);
+		em = new ExtraButtons("E_M"); 
+        add(em);
 		#end
 	}
 
