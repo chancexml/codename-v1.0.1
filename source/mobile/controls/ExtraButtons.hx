@@ -40,7 +40,7 @@ class ExtraButtons extends FlxSpriteGroup {
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
                 add(btnE.sprite);
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
-                add(btnM.sprite):
+                add(btnM.sprite);
 
             case "M":
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
