@@ -103,6 +103,7 @@ class MainMenuState extends MusicBeatState
 
 		#if mobile
 		em = new ExtraButtons("E_M"); 
+		em.cameras = [extraCam];
         add(em);
 		#end
 	}
