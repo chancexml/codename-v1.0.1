@@ -19,7 +19,6 @@ class ExtraButtons extends FlxSpriteGroup {
     public var btnBack:ExtraButtonInfo;
     public var btnM:ExtraButtonInfo;
     public var btnE:ExtraButtonInfo;
-    public var btnB:ExtraButtonInfo;
 
     public function new(buttonMode:String) {
         super();
@@ -27,8 +26,7 @@ class ExtraButtons extends FlxSpriteGroup {
         btnBack = { justPressed: false, justReleased: false, sprite: null };
         btnM = { justPressed: false, justReleased: false, sprite: null };
         btnE = { justPressed: false, justReleased: false, sprite: null };
-        btnB = { justPressed: false, justReleased: false, sprite: null };
-
+        
         initButtons(buttonMode);
     }
 
@@ -38,15 +36,11 @@ class ExtraButtons extends FlxSpriteGroup {
                 btnE.sprite = createSparrowButton(50, 475, "menus/EButton", "E");
                 add(btnE.sprite);
 
-            case "B":
-                btnB.sprite = createButton(0, FlxG.height - 135, B_W, B_H, "down");
-                add(btnB.sprite);
-
-            case "E_B":
+            case "E_M":
                 btnE.sprite = createSparrowButton(50, 475, "menus/EButton", "E");
                 add(btnE.sprite);
-                btnB.sprite = createButton(0, FlxG.height - 135, B_W, B_H, "down");
-                add(btnB.sprite);
+                btnM.sprite = createSparrowButton(1000, 475, "menus/MButton", "M");
+                add(btnM.sprite);
 
             case "M":
                 btnM.sprite = createSparrowButton(1000, 475, "menus/MButton", "M");
