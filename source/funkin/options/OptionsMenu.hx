@@ -75,6 +75,7 @@ class OptionsMenu extends TreeMenu {
 
 		#if mobile
 		back = new ExtraButtons("Back"); 
+		back.cameras = [extraCam];
         add(back);
 		#end
 
