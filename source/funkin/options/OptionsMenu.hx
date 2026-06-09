@@ -78,8 +78,10 @@ class OptionsMenu extends TreeMenu {
 		extraCam = new FlxCamera();
         extraCam.bgColor = 0x00000000;
         FlxG.cameras.add(extraCam, false);
+		
 		back = new ExtraButtons("Back"); 
 		back.cameras = [extraCam];
+		em.updateHitbox();
         add(back);
 		#end
 
