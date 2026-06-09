@@ -20,6 +20,7 @@ typedef OptionCategory = {
 class OptionsMenu extends TreeMenu {
 	#if mobile
     public var back:ExtraButtons;
+	public var extraCam:FlxCamera;
     #end
 		
 	public static var mainOptions:Array<OptionCategory> = [
@@ -74,6 +75,9 @@ class OptionsMenu extends TreeMenu {
 		updateBG();
 
 		#if mobile
+		extraCam = new FlxCamera();
+        extraCam.bgColor = 0x00000000;
+        FlxG.cameras.add(extraCam, false);
 		back = new ExtraButtons("Back"); 
 		back.cameras = [extraCam];
         add(back);
