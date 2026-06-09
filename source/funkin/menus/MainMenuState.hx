@@ -19,6 +19,7 @@ class MainMenuState extends MusicBeatState
 {
 	#if mobile
     public var em:ExtraButtons;
+	public var extraCam:FlxCamera;
     #end
 		
 	var curSelected:Int = 0;
@@ -102,6 +103,10 @@ class MainMenuState extends MusicBeatState
 		devModeWarning.alpha = 0;
 
 		#if mobile
+		extraCam = new FlxCamera();
+        extraCam.bgColor = 0x00000000;
+        FlxG.cameras.add(extraCam, false);
+		
 		em = new ExtraButtons("E_M"); 
 		em.cameras = [extraCam];
         add(em);
