@@ -20,6 +20,8 @@ class ExtraButtons extends FlxSpriteGroup {
     public var btnM:ExtraButtonInfo;
     public var btnE:ExtraButtonInfo;
 
+    public var extraCam:FlxCamera;
+
     public function new(buttonMode:String) {
         super();
 
