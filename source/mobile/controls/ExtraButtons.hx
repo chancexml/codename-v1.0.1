@@ -34,17 +34,17 @@ class ExtraButtons extends FlxSpriteGroup {
         switch (buttonMode) {
             case "E":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
-                add(btnE.sprite)
+                add(btnE.sprite);
 
             case "E_M":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
-                add(btnE.sprite)
+                add(btnE.sprite);
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
-                add(btnM.sprite)
+                add(btnM.sprite):
 
             case "M":
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
-                add(btnM.sprite)
+                add(btnM.sprite);
 
             case "Back":
                 btnBack.sprite = createSparrowButton(1000, 475, "menus/backButton", "back");
