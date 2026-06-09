@@ -81,7 +81,7 @@ class OptionsMenu extends TreeMenu {
 		
 		back = new ExtraButtons("Back"); 
 		back.cameras = [extraCam];
-		em.updateHitbox();
+		back.updateHitbox();
         add(back);
 		#end
 
