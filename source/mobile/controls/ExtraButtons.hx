@@ -76,7 +76,6 @@ class ExtraButtons extends FlxSpriteGroup {
         updateButton(btnBack);
         updateButton(btnM);
         updateButton(btnE);
-        updateButton(btnB);
 
         if (btnBack.sprite != null) {
             if (btnBack.justPressed) {
