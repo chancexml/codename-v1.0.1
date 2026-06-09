@@ -3,6 +3,7 @@ package mobile.controls;
 #if mobile
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.FlxCamera;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.keyboard.FlxKey;
 
@@ -29,36 +30,32 @@ class ExtraButtons extends FlxSpriteGroup {
         btnM = { justPressed: false, justReleased: false, sprite: null };
         btnE = { justPressed: false, justReleased: false, sprite: null };
         
-        initButtons(buttonMode);
-
         extraCam = new FlxCamera();
         extraCam.bgColor = 0x00000000;
         FlxG.cameras.add(extraCam, false);
+        this.cameras = [extraCam];
+        
+        initButtons(buttonMode);
     }
 
     public function initButtons(buttonMode:String) {
         switch (buttonMode) {
             case "E":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
-                btnE.sprite.cameras = [extraCam];
                 add(btnE.sprite);
 
             case "E_M":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
-                btnE.sprite.cameras = [extraCam];
                 add(btnE.sprite);
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
-                btnM.sprite.cameras = [extraCam];
                 add(btnM.sprite);
 
             case "M":
                 btnM.sprite = createImageButton(1000, 475, "menus/MButton");
-                btnM.sprite.cameras = [extraCam];
                 add(btnM.sprite);
 
             case "Back":
                 btnBack.sprite = createSparrowButton(1000, 475, "menus/backButton", "back");
-                btnBack.sprite.cameras = [extraCam];
                 add(btnBack.sprite);
         }
     }
@@ -98,7 +95,7 @@ class ExtraButtons extends FlxSpriteGroup {
 
         if (btnBack.sprite != null) {
             if (btnBack.justPressed) {
-                btnBack.sprite.animation.play("click", true);
+                if (btnBack.sprite.animation.getByName("click") != null) btnBack.sprite.animation.play("click", true);
                 FlxG.keys.handleAction(FlxKey.ESCAPE, true);
             } else if (btnBack.justReleased) {
                 FlxG.keys.handleAction(FlxKey.ESCAPE, false);
@@ -108,7 +105,7 @@ class ExtraButtons extends FlxSpriteGroup {
 
         if (btnM.sprite != null) {
             if (btnM.justPressed) {
-                btnM.sprite.animation.play("click", true);
+                if (btnM.sprite.animation.getByName("click") != null) btnM.sprite.animation.play("click", true);
                 FlxG.keys.handleAction(FlxKey.TAB, true);
             } else if (btnM.justReleased) {
                 FlxG.keys.handleAction(FlxKey.TAB, false);
@@ -118,7 +115,7 @@ class ExtraButtons extends FlxSpriteGroup {
 
         if (btnE.sprite != null) {
             if (btnE.justPressed) {
-                btnE.sprite.animation.play("click", true);
+                if (btnE.sprite.animation.getByName("click") != null) btnE.sprite.animation.play("click", true);
                 FlxG.keys.handleAction(FlxKey.SEVEN, true);
             } else if (btnE.justReleased) {
                 FlxG.keys.handleAction(FlxKey.SEVEN, false);
@@ -132,15 +129,22 @@ class ExtraButtons extends FlxSpriteGroup {
         btn.justPressed = false;
         btn.justReleased = false;
         for (touch in FlxG.touches.list) {
-            if (touch.overlaps(btn.sprite)) {
+            if (touch.overlaps(btn.sprite, extraCam)) {
                 if (touch.justPressed) btn.justPressed = true;
                 if (touch.justReleased) btn.justReleased = true;
             }
         }
-        if (FlxG.mouse.overlaps(btn.sprite)) {
+        if (FlxG.mouse.overlaps(btn.sprite, extraCam)) {
             if (FlxG.mouse.justPressed) btn.justPressed = true;
             if (FlxG.mouse.justReleased) btn.justReleased = true;
         }
+    }
+
+    override public function destroy() {
+        if (extraCam != null) {
+            FlxG.cameras.remove(extraCam);
+        }
+        super.destroy();
     }
 }
 #end
