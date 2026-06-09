@@ -33,17 +33,17 @@ class ExtraButtons extends FlxSpriteGroup {
     public function initButtons(buttonMode:String) {
         switch (buttonMode) {
             case "E":
-                btnE.sprite = createButton(50, 475, "menus/EButton");
+                btnE.sprite = createImageButton(50, 475, "menus/EButton");
                 add(btnE.sprite);
 
             case "E_M":
                 btnE.sprite = createImageButton(50, 475, "menus/EButton");
                 add(btnE.sprite);
-                btnM.sprite = createButton(1000, 475, "menus/MButton");
+                btnM.sprite = createImageButton(1000, 475, "menus/MButton");
                 add(btnM.sprite);
 
             case "M":
-                btnM.sprite = createButton(1000, 475, "menus/MButton");
+                btnM.sprite = createImageButton(1000, 475, "menus/MButton");
                 add(btnM.sprite);
 
             case "Back":
@@ -65,6 +65,14 @@ class ExtraButtons extends FlxSpriteGroup {
 
     private function createButton(x:Float, y:Float, w:Int, h:Int, name:String):FlxSprite {
         var btn = new FlxSprite(x, y).makeGraphic(w, h, 0xFFFFFFFF);
+        btn.scale.set(0.8, 0.8);
+        btn.updateHitbox();
+        return btn;
+    }
+
+    private function createImageButton(x:Float, y:Float, path:String):FlxSprite {
+        var btn = new FlxSprite(x, y);
+        btn.loadGraphic(Paths.image(path));
         btn.scale.set(0.8, 0.8);
         btn.updateHitbox();
         return btn;
