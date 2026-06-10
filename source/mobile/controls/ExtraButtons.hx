@@ -155,14 +155,14 @@ class ExtraButtons extends FlxSpriteGroup {
             for (touch in FlxG.touches.list) {
                 if (touch.overlaps(btn.sprite, extraCam)) {
                     touchFound = true;
-                    if (FlxG.touches.touchInput != null) {
-                        FlxG.touches.touchInput.preventDefault = true;
-                    }
+                    #if openfl
+                    openfl.Lib.current.stage.focus = null;
+                    #end
 
                     if (!btn.isPressed && touch.justPressed) {
                         btn.justPressed = true;
                         btn.isPressed = true;
-                        btn.activeTouchId = touch.touchId;
+                        btn.activeTouchId = touch.id;
                     }
                     break;
                 }
@@ -171,7 +171,7 @@ class ExtraButtons extends FlxSpriteGroup {
             if (btn.isPressed && btn.activeTouchId != -1) {
                 var trackedTouch = null;
                 for (touch in FlxG.touches.list) {
-                    if (touch.touchId == btn.activeTouchId) {
+                    if (touch.id == btn.activeTouchId) {
                         trackedTouch = touch;
                         break;
                     }
@@ -186,9 +186,9 @@ class ExtraButtons extends FlxSpriteGroup {
 
         if (!touchFound && FlxG.mouse != null && FlxG.mouse.visible) {
             if (FlxG.mouse.overlaps(btn.sprite, extraCam)) {
-                if (FlxG.mouse.preventDefault != null) {
-                    FlxG.mouse.preventDefault = true;
-                }
+                #if openfl
+                openfl.Lib.current.stage.focus = null;
+                #end
 
                 if (!btn.isPressed && FlxG.mouse.justPressed) {
                     btn.justPressed = true;
