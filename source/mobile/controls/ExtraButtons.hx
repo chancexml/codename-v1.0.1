@@ -35,6 +35,8 @@ class ExtraButtons extends FlxSpriteGroup {
         
         extraCam = new FlxCamera();
         extraCam.bgColor = 0x00000000;
+        extraCam.scroll.set(0, 0);
+        extraCam.follow(null);
         FlxG.cameras.add(extraCam, false);
         this.cameras = [extraCam];
         
@@ -68,8 +70,8 @@ class ExtraButtons extends FlxSpriteGroup {
         var atlas = Paths.getSparrowAtlas(path);
         if (atlas != null) {
             btn.frames = atlas;
-            btn.animation.addByPrefix("idle", animName + "0000", 24, false);
-            btn.animation.addByPrefix("click", animName, 24, false);
+            btn.animation.addByPrefix("idle", animName + "idle", 24, false);
+            btn.animation.addByPrefix("click", animName + "click", 24, false);
             btn.animation.play("idle");
         } else {
             btn.makeGraphic(B_W, B_H, 0xFFFFFFFF);
