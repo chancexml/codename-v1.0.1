@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.FlxCamera;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.keyboard.FlxKey;
+import flixel.input.touch.FlxTouch;
 
 typedef ExtraButtonInfo = {
     var justPressed:Bool;
@@ -64,21 +65,15 @@ class ExtraButtons extends FlxSpriteGroup {
 
     private function createSparrowButton(x:Float, y:Float, path:String, animName:String):FlxSprite {
         var btn = new FlxSprite(x, y);
-        if (Paths.getSparrowAtlas(path) != null) {
-            btn.frames = Paths.getSparrowAtlas(path);
+        var atlas = Paths.getSparrowAtlas(path);
+        if (atlas != null) {
+            btn.frames = atlas;
             btn.animation.addByPrefix("idle", animName + "0000", 24, false);
             btn.animation.addByPrefix("click", animName, 24, false);
             btn.animation.play("idle");
         } else {
             btn.makeGraphic(B_W, B_H, 0xFFFFFFFF);
         }
-        btn.scale.set(0.8, 0.8);
-        btn.updateHitbox();
-        return btn;
-    }
-
-    private function createButton(x:Float, y:Float, w:Int, h:Int, name:String):FlxSprite {
-        var btn = new FlxSprite(x, y).makeGraphic(w, h, 0xFFFFFFFF);
         btn.scale.set(0.8, 0.8);
         btn.updateHitbox();
         return btn;
@@ -151,31 +146,29 @@ class ExtraButtons extends FlxSpriteGroup {
         btn.justReleased = false;
 
         var touchFound = false;
-        if (FlxG.touches != null && FlxG.touches.list != null) {
+
+        if (FlxG.touches != null) {
             for (touch in FlxG.touches.list) {
                 if (touch.overlaps(btn.sprite, extraCam)) {
                     touchFound = true;
-                    #if openfl
-                    openfl.Lib.current.stage.focus = null;
-                    #end
-
+                    
                     if (!btn.isPressed && touch.justPressed) {
                         btn.justPressed = true;
                         btn.isPressed = true;
-                        btn.activeTouchId = touch.id;
+                        btn.activeTouchId = touch.touchPointID;
                     }
-                    break;
                 }
             }
 
             if (btn.isPressed && btn.activeTouchId != -1) {
-                var trackedTouch = null;
+                var trackedTouch:FlxTouch = null;
                 for (touch in FlxG.touches.list) {
-                    if (touch.id == btn.activeTouchId) {
+                    if (touch.touchPointID == btn.activeTouchId) {
                         trackedTouch = touch;
                         break;
                     }
                 }
+
                 if (trackedTouch == null || trackedTouch.justReleased || !trackedTouch.overlaps(btn.sprite, extraCam)) {
                     btn.justReleased = true;
                     btn.isPressed = false;
@@ -186,10 +179,6 @@ class ExtraButtons extends FlxSpriteGroup {
 
         if (!touchFound && FlxG.mouse != null && FlxG.mouse.visible) {
             if (FlxG.mouse.overlaps(btn.sprite, extraCam)) {
-                #if openfl
-                openfl.Lib.current.stage.focus = null;
-                #end
-
                 if (!btn.isPressed && FlxG.mouse.justPressed) {
                     btn.justPressed = true;
                     btn.isPressed = true;
