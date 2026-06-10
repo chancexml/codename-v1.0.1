@@ -1,6 +1,18 @@
 package mobile.controls;
 
 #if mobile
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.FlxCamera;
+import flixel.group.FlxSpriteGroup;
+import flixel.input.keyboard.FlxKey;
+import flixel.input.touch.FlxTouch;
+import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.frames.FlxTileFrames;
+import flixel.math.FlxPoint;
+import flixel.util.FlxDestroyUtil;
+import flixel.input.FlxInput.FlxInputState;
+
 class MobileButton extends FlxSprite 
 {
 	public var justPressed:Bool = false;
@@ -32,6 +44,10 @@ class VirtualPad extends FlxSpriteGroup
 	public var buttonRight2:MobileButton;
 	public var buttonDown2:MobileButton;
 
+	public var buttonE:MobileButton;
+	public var buttonM:MobileButton;
+	public var buttonBack:MobileButton;
+
 	public var virtualpadCamera:FlxCamera;
 	public static var touchingPad:Bool = false;
 
@@ -55,7 +71,10 @@ class VirtualPad extends FlxSpriteGroup
 		"b" => FlxKey.BACKSPACE,
 		"c" => FlxKey.SHIFT,
 		"x" => FlxKey.SEVEN,
-		"y" => FlxKey.TAB
+		"y" => FlxKey.TAB,
+		"e" => FlxKey.SEVEN,
+		"m" => FlxKey.TAB,
+		"back" => FlxKey.ESCAPE
 	];
 	
 	public function new(?DPad:FlxDPadMode, ?Action:FlxActionMode)
@@ -189,6 +208,15 @@ class VirtualPad extends FlxSpriteGroup
 				add(buttonX = createButton(FlxG.width - 132, FlxG.height - 255, B_W, B_H, "x"));
 				add(buttonC = createButton(FlxG.width - 258, FlxG.height - 135, B_W, B_H, "c"));
 				add(buttonA = createButton(FlxG.width - 132, FlxG.height - 135, B_W, B_H, "a"));
+			case E:
+				add(buttonE = createExtraImageButton(50, 475, "menus/EButton"));
+			case E_M:
+				add(buttonE = createExtraImageButton(50, 475, "menus/EButton"));
+				add(buttonM = createExtraImageButton(1000, 475, "menus/MButton"));
+			case M:
+				add(buttonM = createExtraImageButton(1000, 475, "menus/MButton"));
+			case BACK:
+				add(buttonBack = createExtraSparrowButton(1000, 475, "menus/backButton", "back"));
 			case NONE:
 			default:
 		}
@@ -223,7 +251,8 @@ class VirtualPad extends FlxSpriteGroup
 		}
 
 		this.alpha = funkin.options.Options.virtualPadOpacity; 
-		var padButtons = [buttonY, buttonX, buttonC, buttonB, buttonA, buttonDown2, buttonRight2, buttonUp2, buttonLeft2, buttonDown, buttonRight, buttonUp, buttonLeft];
+		
+		var padButtons = [buttonY, buttonX, buttonC, buttonB, buttonA, buttonDown2, buttonRight2, buttonUp2, buttonLeft2, buttonDown, buttonRight, buttonUp, buttonLeft, buttonE, buttonM, buttonBack];
 
 		if (VirtualPad.lastUpdateFrame != FlxG.game.ticks) {
 			VirtualPad.usedTouches = [];
@@ -251,7 +280,6 @@ class VirtualPad extends FlxSpriteGroup
 			if (btn == null || !btn.exists || !btn.active || !btn.visible) continue;
 
 			var isPressed = false;
-
 
 			for (touch in FlxG.touches.list) {
 				if (touch.pressed && !VirtualPad.usedTouches.contains(touch)) { 
@@ -327,6 +355,9 @@ class VirtualPad extends FlxSpriteGroup
 		if (btn == buttonC) return getBind("c");
 		if (btn == buttonX) return getBind("x");
 		if (btn == buttonY) return getBind("y");
+		if (btn == buttonE) return getBind("e");
+		if (btn == buttonM) return getBind("m");
+		if (btn == buttonBack) return getBind("back");
 		return FlxKey.NONE;
 	}
 
@@ -380,7 +411,7 @@ class VirtualPad extends FlxSpriteGroup
 	
 	public function anyPressed():Bool
 	{
-		var padButtons = [buttonLeft, buttonRight, buttonUp, buttonDown, buttonLeft2, buttonRight2, buttonUp2, buttonDown2, buttonA, buttonB, buttonC, buttonX, buttonY];
+		var padButtons = [buttonLeft, buttonRight, buttonUp, buttonDown, buttonLeft2, buttonRight2, buttonUp2, buttonDown2, buttonA, buttonB, buttonC, buttonX, buttonY, buttonE, buttonM, buttonBack];
 		for (btn in padButtons) {
 			if (btn != null && btn.pressed) return true;
 		}
@@ -389,7 +420,7 @@ class VirtualPad extends FlxSpriteGroup
 
 	public function isTouchOnPad(point:FlxPoint):Bool
 	{
-		var padButtons = [buttonLeft, buttonRight, buttonUp, buttonDown, buttonLeft2, buttonRight2, buttonUp2, buttonDown2, buttonA, buttonB, buttonC, buttonX, buttonY];
+		var padButtons = [buttonLeft, buttonRight, buttonUp, buttonDown, buttonLeft2, buttonRight2, buttonUp2, buttonDown2, buttonA, buttonB, buttonC, buttonX, buttonY, buttonE, buttonM, buttonBack];
 		for (btn in padButtons) {
 			if (btn != null && btn.overlapsPoint(point)) return true;
 		}
@@ -507,6 +538,10 @@ class VirtualPad extends FlxSpriteGroup
 		buttonUp2 = FlxDestroyUtil.destroy(buttonUp2);
 		buttonRight2 = FlxDestroyUtil.destroy(buttonRight2);
 
+		buttonE = FlxDestroyUtil.destroy(buttonE);
+		buttonM = FlxDestroyUtil.destroy(buttonM);
+		buttonBack = FlxDestroyUtil.destroy(buttonBack);
+
 		this.cameras = null;
 		atlasFrames = null;
 
@@ -528,6 +563,50 @@ class VirtualPad extends FlxSpriteGroup
 		
 		return button;
 	}
+
+	private function createExtraSparrowButton(x:Float, y:Float, path:String, animName:String):MobileButton {
+		var btn = new MobileButton(x, y);
+		var atlas = Paths.getSparrowAtlas(path);
+		
+		if (atlas != null) {
+			btn.frames = atlas;
+			btn.animation.addByPrefix("normal", animName + "idle", 24, false);
+			btn.animation.addByPrefix("pressed", animName + "click", 24, false);
+			btn.animation.play("normal");
+		} else {
+			btn.makeGraphic(132, 135, 0xFFFFFFFF);
+			btn.animation.add("normal", [0]);
+			btn.animation.add("pressed", [0]);
+		}
+		
+		btn.scale.set(0.8, 0.8);
+		btn.updateHitbox();
+		btn.solid = false;
+		btn.immovable = true;
+		btn.scrollFactor.set();
+		return btn;
+	}
+
+	private function createExtraImageButton(x:Float, y:Float, path:String):MobileButton {
+		var btn = new MobileButton(x, y);
+		var img = Paths.image(path);
+		
+		if (img != null) {
+			btn.loadGraphic(img);
+		} else {
+			btn.makeGraphic(132, 135, 0xFFFFFFFF);
+		}
+		
+		btn.animation.add("normal", [0]);
+		btn.animation.add("pressed", [0]);
+		
+		btn.scale.set(0.8, 0.8);
+		btn.updateHitbox();
+		btn.solid = false;
+		btn.immovable = true;
+		btn.scrollFactor.set();
+		return btn;
+	}
 }
 
 enum FlxDPadMode {
@@ -535,6 +614,6 @@ enum FlxDPadMode {
 }
 
 enum FlxActionMode {
-	NONE; A; B; X; Y; C; A_B; A_C; A_X; A_Y; A_B_C; A_X_Y; A_B_X_Y; A_C_X_Y; A_B_C_X_Y; B_C; B_X; B_Y; B_C_X_Y; B_X_Y;
+	NONE; A; B; X; Y; C; A_B; A_C; A_X; A_Y; A_B_C; A_X_Y; A_B_X_Y; A_C_X_Y; A_B_C_X_Y; B_C; B_X; B_Y; B_C_X_Y; B_X_Y; E; E_M; M; BACK;
 }
 #end
