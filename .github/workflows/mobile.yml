@@ -20,7 +20,7 @@ on:
       ios_flags:
         description: Ios Flags
         required: false
-        default: -nosign
+        default: 
         
       platform:
         description: "Build platform"
@@ -218,7 +218,7 @@ jobs:
         run: |
           rm -rf export/ios/build
           rm -rf $PWD/build
-          haxelib run lime build ios ${{ github.event.inputs.ios_flags }}
+          haxelib run lime build ios -nosign${{ github.event.inputs.ios_flags }}
           find . -name "*.ipa"
            
       - name: Compile Xcode Project
